@@ -1,0 +1,234 @@
+
+GO!
+Qishen Wu
+My Academics
+Course Selection (Undergrad only)
+Search for Classes
+Enroll
+ 	My Class Schedule	 	 	|	 	 	Shopping Cart	 	 	|	 	 	Add	 	 	|	 	 	Drop	 	 	|	 	 	Swap	 	 	|	 	 	Edit	 	 	|	 	 	Term Information	 	 	|	 	 	Exam Information	 
+My Class Schedule
+List View
+Weekly Calendar View
+Select Display Option
+L
+Winter 2020 | Undergraduate | University of Waterloo
+Group Box
+Collapse section Class Schedule Filter Options Class Schedule Filter Options 
+Show Enrolled Classes
+Show Dropped Classes
+Show Waitlisted Classes
+CS 146 - Elem Alg Des and Data Abst Adv
+Status	Units	Grading	Deadlines
+Enrolled
+0.50
+Numeric Grading Basis
+Academic Calendar Deadlines
+Class Nbr	Section	Component	Days & Times	Room	Instructor	Start/End Date
+6094
+001
+LEC
+TTh 10:00 - 11:20
+MC 4021
+Bradley Lushman
+06/01/2020 - 03/04/2020
+6098
+201
+TST
+M 19:00 - 20:50
+TBA
+Karen Anderson
+02/03/2020 - 02/03/2020
+6126
+101
+TUT
+W 09:30 - 10:20
+PHY 313
+Staff
+06/01/2020 - 03/04/2020
+MATH 136 - Linear Algebra 1 (Hon Math)
+Status	Units	Grading	Deadlines
+Enrolled
+0.50
+Numeric Grading Basis
+Academic Calendar Deadlines
+Class Nbr	Section	Component	Days & Times	Room	Instructor	Start/End Date
+6035
+201
+TST
+M 19:00 - 20:50
+TBA
+Staff
+10/02/2020 - 10/02/2020
+6505
+102
+TUT
+M 16:30 - 17:20
+M3 1006
+Staff
+06/01/2020 - 03/04/2020
+5829
+001
+LEC
+MWF 10:30 - 11:20
+MC 2066
+Serge D'Alessio
+06/01/2020 - 03/04/2020
+MATH 138 - Calculus 2 For Honours Math
+Status	Units	Grading	Deadlines
+Enrolled
+0.50
+Numeric Grading Basis
+Academic Calendar Deadlines
+Class Nbr	Section	Component	Days & Times	Room	Instructor	Start/End Date
+6397
+102
+TUT
+W 17:30 - 18:20
+RCH 101
+Staff
+06/01/2020 - 03/04/2020
+6036
+201
+TST
+M 19:00 - 20:50
+TBA
+Staff
+24/02/2020 - 24/02/2020
+5838
+002
+LEC
+MWF 14:30 - 15:20
+MC 2065
+Jennifer Nelson
+06/01/2020 - 03/04/2020
+PHYS 112 - Physics 2
+Status	Units	Grading	Deadlines
+Enrolled
+0.50
+Numeric Grading Basis
+Academic Calendar Deadlines
+Class Nbr	Section	Component	Days & Times	Room	Instructor	Start/End Date
+6701
+002
+LEC
+MWF 08:30 - 09:20
+STC 1012
+Stefan Idziak
+06/01/2020 - 03/04/2020
+6702
+101
+TUT
+Th 13:30 - 14:20
+MC 4058
+Staff
+06/01/2020 - 03/04/2020
+8504
+201
+TST
+W 17:30 - 18:50
+TBA
+Staff
+26/02/2020 - 26/02/2020
+STAT 230 - Probability
+Status	Units	Grading	Deadlines
+Enrolled
+0.50
+Numeric Grading Basis
+Academic Calendar Deadlines
+Class Nbr	Section	Component	Days & Times	Room	Instructor	Start/End Date
+6344
+103
+TUT
+T 14:30 - 15:20
+STC 0010
+Audrey Beliveau
+14/01/2020 - 14/01/2020
+ 
+ 	
+ 
+T 14:30 - 15:20
+STC 0010
+Audrey Beliveau
+28/01/2020 - 28/01/2020
+ 
+ 	
+ 
+T 14:30 - 15:20
+STC 0010
+Staff
+11/02/2020 - 11/02/2020
+ 
+ 	
+ 
+T 14:30 - 15:20
+STC 0010
+Staff
+03/03/2020 - 03/03/2020
+ 
+ 	
+ 
+T 14:30 - 15:20
+STC 0010
+Staff
+17/03/2020 - 17/03/2020
+ 
+ 	
+ 
+T 14:30 - 15:20
+STC 0010
+Staff
+31/03/2020 - 31/03/2020
+6029
+201
+TST
+Th 16:30 - 18:20
+TBA
+Audrey Beliveau,
+Diana Skrzydlo,
+Steve Van Doormaal
+06/02/2020 - 06/02/2020
+ 
+ 	
+ 
+Th 16:30 - 18:20
+TBA
+Audrey Beliveau,
+Diana Skrzydlo,
+Steve Van Doormaal
+12/03/2020 - 12/03/2020
+ 
+ 	
+ 
+F 18:30 - 20:00
+TBA
+Audrey Beliveau,
+Diana Skrzydlo,
+Steve Van Doormaal
+24/01/2020 - 24/01/2020
+ 
+ 	
+ 
+F 18:30 - 20:00
+TBA
+Audrey Beliveau,
+Diana Skrzydlo,
+Steve Van Doormaal
+28/02/2020 - 28/02/2020
+ 
+ 	
+ 
+F 18:30 - 20:00
+TBA
+Audrey Beliveau,
+Diana Skrzydlo,
+Steve Van Doormaal
+27/03/2020 - 27/03/2020
+5759
+001
+LEC
+MWF 11:30 - 12:20
+DC 1351
+Diana Skrzydlo
+06/01/2020 - 03/04/2020
+Printer Friendly Page
+Go to top iconGo to top
