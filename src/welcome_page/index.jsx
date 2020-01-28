@@ -8,8 +8,8 @@ import _ from 'lodash';
 import axios from 'axios';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import CourseItem from '../components/CourseItem';
-import logo from './logo.svg';
 import './index.css';
+import logo from './icon.png';
 
 const apiKey = '4ad350333dc3859b91bcf443d14e4bf0';
 
@@ -170,7 +170,7 @@ class WelcomePage extends React.Component {
       }
       const primary = course[0];
       const rearranged = primary.map((p) => {
-      // for (let i = 1; i < grouped.length; ++i) {
+        // for (let i = 1; i < grouped.length; ++i) {
 
         // }
         const other = course.slice(1).map((t) => {
