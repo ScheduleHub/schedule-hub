@@ -10,8 +10,8 @@ https://wuqs-net.github.io/schedule-planner/
 
 `npm run start`
 
-Webpage will be hosted at localhost:8000
+Webpage will be hosted at `localhost:3000`
 
-## Deploy
+## Deploy to github pages
 
 `npm run deploy`
