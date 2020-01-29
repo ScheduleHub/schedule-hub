@@ -9,7 +9,7 @@ import axios from 'axios';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import CourseItem from '../components/CourseItem';
 import './index.css';
-import logo from './icon.png';
+import logo from './icon.svg';
 
 const apiKey = '4ad350333dc3859b91bcf443d14e4bf0';
 
@@ -26,6 +26,7 @@ class WelcomePage extends React.Component {
       showAlert: false,
       rawCourses: '',
       courseInfo: [],
+      hideAlert: true,
     };
   }
 
@@ -65,10 +66,17 @@ class WelcomePage extends React.Component {
 
   showModal = () => {
     const { rawCourses } = this.state;
-    this.setState({
-      modalShow: true,
-    });
-    this.parseCourses(rawCourses);
+    try {
+      this.parseCourses(rawCourses);
+      this.setState({
+        modalShow: true,
+        hideAlert: true,
+      });
+    } catch (error) {
+      this.setState({
+        hideAlert: false,
+      });
+    }
   }
 
   hideModal = () => {
@@ -196,35 +204,38 @@ class WelcomePage extends React.Component {
 
   render() {
     const {
-      modalShow, currentCourses, allSubjects, courseNumbers, showAlert, subjectBox, courseNumberBox,
+      modalShow, currentCourses, allSubjects, courseNumbers, showAlert, subjectBox, courseNumberBox, hideAlert,
     } = this.state;
     return (
       <div className="WelcomePage">
+        <Alert variant="warning" hidden={hideAlert}>
+          Your course info cannot be read. Please try again.
+        </Alert>
         <img src={logo} alt="Logo" className="Logo" />
         <CardDeck className="StepsDeck">
           <Card className="Card" border="primary">
-            <Card.Header as="h5">Step 1</Card.Header>
+            <Card.Header className="CardHeader" as="h5">Step 1</Card.Header>
             <Card.Body>
               <Card.Text>Go to Quest and click "Class Schedule".</Card.Text>
               <Card.Img src="https://uwflow.com/static/img/import-schedule/step-1.png" />
             </Card.Body>
           </Card>
           <Card className="Card">
-            <Card.Header as="h5">Step 2</Card.Header>
+            <Card.Header className="CardHeader" as="h5">Step 2</Card.Header>
             <Card.Body>
               <Card.Text>Choose your term, then select all and copy.</Card.Text>
               <Card.Img src="https://uwflow.com/static/img/import-schedule/step-2.png" />
             </Card.Body>
           </Card>
           <Card className="Card">
-            <Card.Header as="h5">Step 3</Card.Header>
+            <Card.Header className="CardHeader" as="h5">Step 3</Card.Header>
             <Card.Body>
               <Card.Text>Paste into the box below.</Card.Text>
               <Form>
                 <Form.Group>
-                  <Form.Control as="textarea" className="PasteBox" rows="15" onChange={(e) => this.updateRawCourses(e.target.value)} />
+                  <Form.Control as="textarea" className="PasteBox" rows="12" onChange={(e) => this.updateRawCourses(e.target.value)} />
                 </Form.Group>
-                <Button block onClick={this.showModal}>Next</Button>
+                <Button className="NextButton" block onClick={this.showModal}>Next</Button>
               </Form>
             </Card.Body>
           </Card>
