@@ -1,76 +1,79 @@
 .App {
-    overflow: hidden;
+  overflow: hidden;
 }
 
 .App-logo {
-    height: 40vmin;
-    pointer-events: none;
+  height: 40vmin;
+  pointer-events: none;
 }
 
 @media (prefers-reduced-motion: no-preference) {
-    .App-logo {
-        animation: App-logo-spin infinite 20s linear;
-    }
+  .App-logo {
+    animation: App-logo-spin infinite 20s linear;
+  }
 }
 
 .App-header {
-    background-color: #282c34;
-    min-height: 100vh;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    font-size: calc(10px + 2vmin);
-    color: white;
+  background-color: #282c34;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  font-size: calc(10px + 2vmin);
+  color: white;
 }
 
 .App-link {
-    color: #61dafb;
+  color: #61dafb;
 }
 
 @keyframes App-logo-spin {
-    from {
-        transform: rotate(0deg);
-    }
-    to {
-        transform: rotate(360deg);
-    }
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
 }
 
 .Logo {
-    display: block;
-    height: 20vmin;
-    margin-left: auto;
-    margin-right: auto;
+  display: block;
+  height: 16vmin;
+  margin-top: 30px;
+  margin-bottom: 30px;
+  margin-left: auto;
+  margin-right: auto;
 }
 
 .Card {
-    border-radius: 20px;
-    display: flex;
-    width: 400px;
+  border-radius: 20px;
+  display: flex;
+  width: 400px;
+  height: 490px;
 }
 
 .StepsDeck {
-    margin: auto;
-    width: 80%;
+  margin: auto;
+  width: 80%;
 }
 
 .PasteBox {
-    resize: none;
+  resize: none;
 }
 
 .CourseEditCard {
-    height: 400px;
+  height: 400px;
 }
 
 .KeepColumn {
-    text-align: center;
+  text-align: center;
 }
 
 .VerticalMiddle {
-    vertical-align: middle;
+  vertical-align: middle;
 }
 
 .AutoCompleteInput {
-    margin: 16px;
+  margin: 16px;
 }

@@ -1,6 +1,6 @@
 import React from 'react';
 import {
-  Button, CardDeck, Card, Form, Modal, CardGroup, Table,
+  Alert, Button, CardDeck, Card, Form, Modal, CardGroup, Table,
 } from 'react-bootstrap';
 import TextField from '@material-ui/core/TextField';
 import Autocomplete from '@material-ui/lab/Autocomplete';
@@ -8,9 +8,9 @@ import _ from 'lodash';
 import axios from 'axios';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import CourseItem from '../components/CourseItem';
-import logo from './logo.svg';
 import './index.css';
 import { areAssociated, getCourseCode } from '../utils/courses';
+import logo from './icon.svg';
 
 const apiKey = '4ad350333dc3859b91bcf443d14e4bf0';
 
@@ -28,6 +28,7 @@ class WelcomePage extends React.Component {
       showAlert: false,
       rawCourses: '',
       courseInfo: [],
+      hideAlert: true,
     };
   }
 
@@ -66,10 +67,17 @@ class WelcomePage extends React.Component {
 
   showModal = () => {
     const { rawCourses } = this.state;
-    this.setState({
-      modalShow: true,
-    });
-    this.parseCourses(rawCourses);
+    try {
+      this.parseCourses(rawCourses);
+      this.setState({
+        modalShow: true,
+        hideAlert: true,
+      });
+    } catch (error) {
+      this.setState({
+        hideAlert: false,
+      });
+    }
   }
 
   hideModal = () => {
@@ -204,10 +212,13 @@ class WelcomePage extends React.Component {
 
   render() {
     const {
-      modalShow, currentCourses, allSubjects, courseNumbers, showAlert, subjectBox, courseNumberBox,
+      modalShow, currentCourses, allSubjects, courseNumbers, showAlert, subjectBox, courseNumberBox, hideAlert,
     } = this.state;
     return (
       <div className="WelcomePage">
+        <Alert variant="warning" hidden={hideAlert}>
+          Your course info cannot be read. Please try again.
+        </Alert>
         <img src={logo} alt="Logo" className="Logo" />
         <CardDeck className="StepsDeck">
           <Card className="Card" border="primary">
@@ -245,9 +256,9 @@ class WelcomePage extends React.Component {
               <Card.Text>Paste into the box below.</Card.Text>
               <Form>
                 <Form.Group>
-                  <Form.Control as="textarea" className="PasteBox" rows="15" onChange={(e) => this.updateRawCourses(e.target.value)} />
+                  <Form.Control as="textarea" className="PasteBox" rows="12" onChange={(e) => this.updateRawCourses(e.target.value)} />
                 </Form.Group>
-                <Button block onClick={this.showModal}>Next</Button>
+                <Button className="NextButton" block onClick={this.showModal}>Next</Button>
               </Form>
             </Card.Body>
           </Card>
