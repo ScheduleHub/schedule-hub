@@ -1,6 +1,6 @@
 import React from 'react';
 import {
-  Button, CardDeck, Card, Form, Modal, CardGroup, Table, Col, Alert,
+  Button, CardDeck, Card, Form, Modal, CardGroup, Table,
 } from 'react-bootstrap';
 import TextField from '@material-ui/core/TextField';
 import Autocomplete from '@material-ui/lab/Autocomplete';
@@ -10,6 +10,7 @@ import 'bootstrap/dist/css/bootstrap.min.css';
 import CourseItem from '../components/CourseItem';
 import logo from './logo.svg';
 import './index.css';
+import { areAssociated, getCourseCode } from '../utils/courses';
 
 const apiKey = '4ad350333dc3859b91bcf443d14e4bf0';
 
@@ -19,6 +20,7 @@ class WelcomePage extends React.Component {
     this.state = {
       modalShow: false,
       currentCourses: [],
+      currentClasses: [],
       allSubjects: [],
       courseNumbers: [],
       subjectBox: '',
@@ -30,7 +32,6 @@ class WelcomePage extends React.Component {
   }
 
   componentDidMount() {
-    console.log('mounted');
     this.loadSubjects();
   }
 
@@ -51,15 +52,15 @@ class WelcomePage extends React.Component {
   }
 
   parseCourses = (rawCourses) => {
-    const lines = rawCourses.split('\n').filter((str) => /^[0-9]{4}$/.test(str));
+    const classNumbers = rawCourses.match(/^\d{4}$/gm);
     const courseNames = rawCourses.match(/[A-Z]{2,6} \d{1,3}[A-Z]? - /g).map((x) => x.substring(0, x.length - 3));
 
     this.setState({
       currentCourses: courseNames.map(
         (item) => ({ courseCode: item, keepable: true, keep: true }),
       ),
+      currentClasses: classNumbers.map((item) => parseInt(item, 10)),
     });
-    console.log(courseNames);
     this.loadCourseInfo(courseNames);
   }
 
@@ -158,37 +159,44 @@ class WelcomePage extends React.Component {
   }
 
   handleViewScheduleClick = () => {
-    const { currentCourses, courseInfo } = this.state;
-    const filtered_courses = [];
-    console.log(courseInfo);
-    const grouped = courseInfo.map((/** @type {[]} */ course) => _.groupBy(course, (s) => s.section[4]));
-    const finalGrouped = [];
-    for (let i = 0; i < grouped.length; ++i) {
-      const course = [];
-      for (const key in grouped[i]) {
-        course.push(grouped[i][key]);
-      }
-      const primary = course[0];
-      const rearranged = primary.map((p) => {
-      // for (let i = 1; i < grouped.length; ++i) {
-
-        // }
-        const other = course.slice(1).map((t) => {
-          let matched = t.filter((s) => s.associated_class === p.associated_class);
-          if (!matched.length) {
-            matched = t.filter((s) => s.associated_class === 99);
-          }
-          return matched.map((s) => s.classNumber);
-        });
-        return [[p]].concat(other);
+    const { currentCourses, currentClasses, courseInfo } = this.state;
+    const grouped = courseInfo.map((/** @type {[]} */ course) => {
+      const dict = _.groupBy(course, (s) => s.section[4]);
+      const groupedSectionList = [];
+      _.forEach(dict, (value, key) => {
+        groupedSectionList[key] = value;
       });
-      finalGrouped.push(rearranged);
-    }
-    console.log(finalGrouped);
+      return groupedSectionList;
+    });
+
+    const currentCoursesDict = _.keyBy(currentCourses, 'courseCode');
+
+    const associatedClassList = grouped.map((course) => {
+      let primary = course[0];
+      const keepUnchanged = currentCoursesDict[getCourseCode(primary[0])].keep;
+      if (keepUnchanged) {
+        primary = primary.filter((section) => currentClasses.includes(section.class_number));
+      }
+
+      const other = course.slice(1);
+      const rearranged = primary.map((primarySection) => {
+        const allowedComponents = other.map((component) => {
+          let allowedSections = component.filter(
+            (section) => areAssociated(primarySection, section),
+          );
+          if (_.isEmpty(allowedSections)) {
+            allowedSections = component.filter((section) => section.associated_class === 99);
+          }
+          return _.map(allowedSections, 'class_number');
+        });
+        return [[primarySection.class_number]].concat(allowedComponents);
+      });
+      return rearranged;
+    });
 
     const data = {
       courses_info: courseInfo,
-      filtered_courses,
+      filtered_courses: associatedClassList,
     };
     console.log(data);
   }
@@ -203,21 +211,36 @@ class WelcomePage extends React.Component {
         <img src={logo} alt="Logo" className="Logo" />
         <CardDeck className="StepsDeck">
           <Card className="Card" border="primary">
-            <Card.Header as="h5">Step 1</Card.Header>
+            <Card.Header
+              as="h5"
+              style={{ borderTopLeftRadius: '20px', borderTopRightRadius: '20px' }}
+            >
+              Step 1
+            </Card.Header>
             <Card.Body>
-              <Card.Text>Go to Quest and click "Class Schedule".</Card.Text>
+              <Card.Text>Go to Quest and click &quot;Class Schedule&quot;.</Card.Text>
               <Card.Img src="https://uwflow.com/static/img/import-schedule/step-1.png" />
             </Card.Body>
           </Card>
           <Card className="Card">
-            <Card.Header as="h5">Step 2</Card.Header>
+            <Card.Header
+              as="h5"
+              style={{ borderTopLeftRadius: '20px', borderTopRightRadius: '20px' }}
+            >
+              Step 2
+            </Card.Header>
             <Card.Body>
               <Card.Text>Choose your term, then select all and copy.</Card.Text>
               <Card.Img src="https://uwflow.com/static/img/import-schedule/step-2.png" />
             </Card.Body>
           </Card>
           <Card className="Card">
-            <Card.Header as="h5">Step 3</Card.Header>
+            <Card.Header
+              as="h5"
+              style={{ borderTopLeftRadius: '20px', borderTopRightRadius: '20px' }}
+            >
+              Step 3
+            </Card.Header>
             <Card.Body>
               <Card.Text>Paste into the box below.</Card.Text>
               <Form>

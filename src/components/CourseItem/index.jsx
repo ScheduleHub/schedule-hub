@@ -1,5 +1,5 @@
 import React from 'react';
-import { Button, Form } from 'react-bootstrap';
+import { Button } from 'react-bootstrap';
 import 'bootstrap/dist/css/bootstrap.min.css';
 
 class CourseItem extends React.Component {
@@ -30,7 +30,6 @@ class CourseItem extends React.Component {
   }
 
   onKeepChange = (checked) => {
-    console.log(checked);
     this.setState({ keep: checked });
   }
 
