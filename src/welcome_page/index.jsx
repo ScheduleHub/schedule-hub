@@ -1,8 +1,11 @@
 import React from 'react';
 import {
-  Alert, Button, CardDeck, Card, Form, Modal, CardGroup, Table,
+  Alert, Modal, CardGroup, Table,
 } from 'react-bootstrap';
-import TextField from '@material-ui/core/TextField';
+import {
+  Button, TextField, Typography, makeStyles, Grid,
+  Card, CardContent, CardHeader, CardMedia, CardActions, Link,
+} from '@material-ui/core';
 import Autocomplete from '@material-ui/lab/Autocomplete';
 import _ from 'lodash';
 import axios from 'axios';
@@ -13,6 +16,12 @@ import { areAssociated, getCourseCode } from '../utils/courses';
 import logo from './icon.svg';
 
 const apiKey = '4ad350333dc3859b91bcf443d14e4bf0';
+
+const useStyles = makeStyles((theme) => ({
+  screenshot: {
+    height: 300,
+  },
+}));
 
 class WelcomePage extends React.Component {
   constructor(props) {
@@ -214,55 +223,65 @@ class WelcomePage extends React.Component {
     const {
       modalShow, currentCourses, allSubjects, courseNumbers, showAlert, subjectBox, courseNumberBox, hideAlert,
     } = this.state;
+
     return (
-      <div className="WelcomePage">
+      <div style={{ padding: 16 }}>
         <Alert variant="warning" hidden={hideAlert}>
           Your course info cannot be read. Please try again.
         </Alert>
         <img src={logo} alt="Logo" className="Logo" />
-        <CardDeck className="StepsDeck">
-          <Card className="Card" border="primary">
-            <Card.Header
-              as="h5"
-              style={{ borderTopLeftRadius: '20px', borderTopRightRadius: '20px' }}
-            >
-              Step 1
-            </Card.Header>
-            <Card.Body>
-              <Card.Text>Go to Quest and click &quot;Class Schedule&quot;.</Card.Text>
-              <Card.Img src="https://uwflow.com/static/img/import-schedule/step-1.png" />
-            </Card.Body>
-          </Card>
-          <Card className="Card">
-            <Card.Header
-              as="h5"
-              style={{ borderTopLeftRadius: '20px', borderTopRightRadius: '20px' }}
-            >
-              Step 2
-            </Card.Header>
-            <Card.Body>
-              <Card.Text>Choose your term, then select all and copy.</Card.Text>
-              <Card.Img src="https://uwflow.com/static/img/import-schedule/step-2.png" />
-            </Card.Body>
-          </Card>
-          <Card className="Card">
-            <Card.Header
-              as="h5"
-              style={{ borderTopLeftRadius: '20px', borderTopRightRadius: '20px' }}
-            >
-              Step 3
-            </Card.Header>
-            <Card.Body>
-              <Card.Text>Paste into the box below.</Card.Text>
-              <Form>
-                <Form.Group>
-                  <Form.Control as="textarea" className="PasteBox" rows="12" onChange={(e) => this.updateRawCourses(e.target.value)} />
-                </Form.Group>
-                <Button className="NextButton" block onClick={this.showModal}>Next</Button>
-              </Form>
-            </Card.Body>
-          </Card>
-        </CardDeck>
+
+        <Grid container justify="center" spacing={4}>
+          <Grid item xs={12} md={4} lg={3}>
+            <Card raised>
+              <CardHeader title="Step 1" style={{ background: '#f5f5f5' }} />
+              <CardContent>
+                <Typography variant="body1">
+                  Go to&nbsp;
+                  <Link href="https://quest.pecs.uwaterloo.ca/psp/SS/ACADEMIC/SA/?cmd=login&languageCd=ENG" target="_blank">Quest</Link>
+                  &nbsp;and click &quot;Class Schedule&quot;.
+                </Typography>
+              </CardContent>
+              <CardMedia
+                image="https://uwflow.com/static/img/import-schedule/step-1.png"
+                title="Go to Class Schedule"
+                style={{ height: 0, paddingTop: '100%' }}
+              />
+            </Card>
+          </Grid>
+          <Grid item xs={12} md={4} lg={3}>
+            <Card raised>
+              <CardHeader title="Step 2" style={{ background: '#f5f5f5' }} />
+              <CardContent>
+                <Typography variant="body1">Choose your term, then select all and copy.</Typography>
+              </CardContent>
+              <CardMedia
+                image="https://uwflow.com/static/img/import-schedule/step-2.png"
+                title="Select All and Copy"
+                style={{ height: 0, paddingTop: '100%' }}
+              />
+            </Card>
+          </Grid>
+          <Grid item xs={12} md={4} lg={3}>
+            <Card raised style={{ display: 'flex', flexDirection: 'column', height: '100%' }}>
+              <CardHeader title="Step 3" style={{ background: '#f5f5f5' }} />
+              <CardContent>
+                <Typography variant="body1" gutterBottom style={{ marginBottom: 16 }}>Paste into the box below.</Typography>
+                <TextField
+                  multiline
+                  variant="outlined"
+                  fullWidth
+                  rows={12}
+                  onChange={(e) => this.updateRawCourses(e.target.value)}
+                />
+              </CardContent>
+              <CardActions style={{ padding: 16, marginTop: 'auto' }}>
+                <Button color="primary" variant="outlined" size="large" fullWidth onClick={this.showModal}>Next</Button>
+              </CardActions>
+            </Card>
+          </Grid>
+        </Grid>
+
         <Modal size="lg" show={modalShow} onHide={this.hideModal}>
           <CardGroup>
             <Card className="CourseEditCard" style={{ overflowY: 'scroll' }}>
