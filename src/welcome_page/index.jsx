@@ -1,21 +1,28 @@
 import React from 'react';
 import {
-  Alert, Modal, CardGroup, Table,
-} from 'react-bootstrap';
-import {
-  Button, TextField, Typography, makeStyles, Grid,
-  Card, CardContent, CardHeader, CardMedia, CardActions, Link,
+  Button, TextField, Typography, makeStyles, Grid, Modal,
+  Card, CardContent, CardHeader, CardMedia, CardActions, Link, Paper, List, CssBaseline, Divider, Snackbar, Fade, Backdrop, createMuiTheme, ThemeProvider,
 } from '@material-ui/core';
-import Autocomplete from '@material-ui/lab/Autocomplete';
+import { Autocomplete, Alert } from '@material-ui/lab';
+import { blue } from '@material-ui/core/colors';
 import _ from 'lodash';
 import axios from 'axios';
-import 'bootstrap/dist/css/bootstrap.min.css';
 import CourseItem from '../components/CourseItem';
 import './index.css';
 import { areAssociated, getCourseCode } from '../utils/courses';
 import logo from './icon.svg';
 
 const apiKey = '4ad350333dc3859b91bcf443d14e4bf0';
+
+const theme = createMuiTheme({
+  palette: {
+    primary: {
+      main: blue[500],
+      light: '#6ec6ff',
+      dark: '#0069c0',
+    },
+  },
+});
 
 const useStyles = makeStyles((theme) => ({
   screenshot: {
@@ -98,10 +105,7 @@ class WelcomePage extends React.Component {
   dropCourse = (courseCode) => {
     const { currentCourses, courseInfo } = this.state;
     const newCurrentCourses = currentCourses.filter((item) => item.courseCode !== courseCode);
-    const newCourseInfo = courseInfo.filter((item) => {
-      const { subject, catalog_number } = item[0];
-      return `${subject} ${catalog_number}` !== courseCode;
-    });
+    const newCourseInfo = courseInfo.filter((item) => getCourseCode(item[0]) !== courseCode);
     this.setState({
       currentCourses: newCurrentCourses,
       courseInfo: newCourseInfo,
@@ -225,121 +229,132 @@ class WelcomePage extends React.Component {
     } = this.state;
 
     return (
-      <div style={{ padding: 16 }}>
-        <Alert variant="warning" hidden={hideAlert}>
+      <ThemeProvider theme={theme}>
+        <div style={{ padding: 16 }}>
+          <CssBaseline />
+          <Snackbar open={!hideAlert} autoHideDuration={5000} anchorOrigin={{ vertical: 'top', horizontal: 'center' }}>
+            <Alert severity="warning">
           Your course info cannot be read. Please try again.
-        </Alert>
-        <img src={logo} alt="Logo" className="Logo" />
+            </Alert>
+          </Snackbar>
+          <img src={logo} alt="Logo" className="Logo" />
 
-        <Grid container justify="center" spacing={4}>
-          <Grid item xs={12} md={4} lg={3}>
-            <Card raised>
-              <CardHeader title="Step 1" style={{ background: '#f5f5f5' }} />
-              <CardContent>
-                <Typography variant="body1">
+          <Grid container justify="center" spacing={4}>
+            <Grid item xs={12} md={4} lg={3}>
+              <Card raised>
+                <CardHeader title="Step 1" style={{ background: '#f5f5f5' }} />
+                <CardContent>
+                  <Typography variant="body1">
                   Go to&nbsp;
-                  <Link href="https://quest.pecs.uwaterloo.ca/psp/SS/ACADEMIC/SA/?cmd=login&languageCd=ENG" target="_blank">Quest</Link>
+                    <Link href="https://quest.pecs.uwaterloo.ca/psp/SS/ACADEMIC/SA/?cmd=login&languageCd=ENG" target="_blank">Quest</Link>
                   &nbsp;and click &quot;Class Schedule&quot;.
-                </Typography>
-              </CardContent>
-              <CardMedia
-                image="https://uwflow.com/static/img/import-schedule/step-1.png"
-                title="Go to Class Schedule"
-                style={{ height: 0, paddingTop: '100%' }}
-              />
-            </Card>
-          </Grid>
-          <Grid item xs={12} md={4} lg={3}>
-            <Card raised>
-              <CardHeader title="Step 2" style={{ background: '#f5f5f5' }} />
-              <CardContent>
-                <Typography variant="body1">Choose your term, then select all and copy.</Typography>
-              </CardContent>
-              <CardMedia
-                image="https://uwflow.com/static/img/import-schedule/step-2.png"
-                title="Select All and Copy"
-                style={{ height: 0, paddingTop: '100%' }}
-              />
-            </Card>
-          </Grid>
-          <Grid item xs={12} md={4} lg={3}>
-            <Card raised style={{ display: 'flex', flexDirection: 'column', height: '100%' }}>
-              <CardHeader title="Step 3" style={{ background: '#f5f5f5' }} />
-              <CardContent>
-                <Typography variant="body1" gutterBottom style={{ marginBottom: 16 }}>Paste into the box below.</Typography>
-                <TextField
-                  multiline
-                  variant="outlined"
-                  fullWidth
-                  rows={12}
-                  onChange={(e) => this.updateRawCourses(e.target.value)}
+                  </Typography>
+                </CardContent>
+                <CardMedia
+                  image="https://uwflow.com/static/img/import-schedule/step-1.png"
+                  title="Go to Class Schedule"
+                  style={{ height: 0, paddingTop: '100%' }}
                 />
-              </CardContent>
-              <CardActions style={{ padding: 16, marginTop: 'auto' }}>
-                <Button color="primary" variant="outlined" size="large" fullWidth onClick={this.showModal}>Next</Button>
-              </CardActions>
-            </Card>
+              </Card>
+            </Grid>
+            <Grid item xs={12} md={4} lg={3}>
+              <Card raised>
+                <CardHeader title="Step 2" style={{ background: '#f5f5f5' }} />
+                <CardContent>
+                  <Typography variant="body1">Choose your term, then select all and copy.</Typography>
+                </CardContent>
+                <CardMedia
+                  image="https://uwflow.com/static/img/import-schedule/step-2.png"
+                  title="Select All and Copy"
+                  style={{ height: 0, paddingTop: '100%' }}
+                />
+              </Card>
+            </Grid>
+            <Grid item xs={12} md={4} lg={3}>
+              <Card raised style={{ display: 'flex', flexDirection: 'column', height: '100%' }}>
+                <CardHeader title="Step 3" style={{ background: '#f5f5f5' }} />
+                <CardContent>
+                  <Typography variant="body1" gutterBottom style={{ marginBottom: 16 }}>Paste into the box below.</Typography>
+                  <TextField
+                    multiline
+                    required
+                    variant="outlined"
+                    fullWidth
+                    rows={12}
+                    onChange={(e) => this.updateRawCourses(e.target.value)}
+                  />
+                </CardContent>
+                <CardActions style={{ padding: 16, marginTop: 'auto' }}>
+                  <Button color="primary" variant="contained" size="large" fullWidth onClick={this.showModal}>Next</Button>
+                </CardActions>
+              </Card>
+            </Grid>
           </Grid>
-        </Grid>
 
-        <Modal size="lg" show={modalShow} onHide={this.hideModal}>
-          <CardGroup>
-            <Card className="CourseEditCard" style={{ overflowY: 'scroll' }}>
-              <Table hover>
-                <thead>
-                  <tr>
-                    <th>Course</th>
-                    {/* <th className="KeepColumn">Keep unchanged?</th> */}
-                  </tr>
-                </thead>
-                <tbody>
-                  {
-                    currentCourses.map((item) => {
-                      const { courseCode, keepable, keep } = item;
-                      return (
-                        <CourseItem
-                          key={courseCode}
-                          courseCode={courseCode}
-                          keepable={keepable}
-                          keep={keep}
-                          onDropClick={() => this.dropCourse(courseCode)}
-                        />
-                      );
-                    })
-                  }
-                </tbody>
-              </Table>
-            </Card>
-            <Card className="CourseEditCard">
-              <Autocomplete
-                className="AutoCompleteInput"
-                id="subjectBox"
-                options={allSubjects}
-                renderInput={(params) => (
-                  <TextField {...params} label="Subject" variant="outlined" fullWidth />
-                )}
-                fullWidth
-                onSelect={(e) => {
-                  this.loadCourseNumbers(e.target.value);
-                  this.setState({
-                    subjectBox: e.target.value.toUpperCase(),
-                  });
-                }}
-              />
-              <Autocomplete
-                className="AutoCompleteInput"
-                id="courseNumberBox"
-                options={courseNumbers}
-                getOptionLabel={(option) => option}
-                renderInput={(params) => (
-                  <TextField {...params} label="Course number" variant="outlined" fullWidth />
-                )}
-                onSelect={(e) => this.setState({
-                  courseNumberBox: e.target.value,
-                })}
-              />
-              <Button onClick={this.handleAddClick} style={{ margin: '16px' }}>Add</Button>
-              {/* <Alert show={showAlert} variant="warning">
+          <Modal
+            open={modalShow}
+            onClose={this.hideModal}
+            style={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}
+            BackdropComponent={Backdrop}
+            BackdropProps={{
+              timeout: 500,
+            }}
+            closeAfterTransition
+          >
+            <Fade in={modalShow}>
+              <Paper style={{ width: 800 }}>
+                <div style={{ padding: 16, background: '#f5f5f5' }}>
+                  <Typography variant="h5">Edit my courses</Typography>
+                </div>
+                <Grid container>
+                  <Grid item xs={12} sm>
+                    <List style={{ overflowY: 'scroll', height: 360 }}>
+                      {currentCourses.map((item) => {
+                        const { courseCode, keepable, keep } = item;
+                        return (
+                          <CourseItem
+                            key={courseCode}
+                            courseCode={courseCode}
+                            keepable={keepable}
+                            keep={keep}
+                            onDropClick={() => this.dropCourse(courseCode)}
+                          />
+                        );
+                      })}
+                    </List>
+                  </Grid>
+                  <Grid item xs={12} sm>
+                    <Autocomplete
+                      className="AutoCompleteInput"
+                      id="subjectBox"
+                      options={allSubjects}
+                      renderInput={(params) => (
+                        <TextField {...params} label="Subject" variant="outlined" fullWidth />
+                      )}
+                      onSelect={(e) => {
+                        this.loadCourseNumbers(e.target.value);
+                        this.setState({
+                          subjectBox: e.target.value.toUpperCase(),
+                        });
+                      }}
+                    />
+                    <Autocomplete
+                      className="AutoCompleteInput"
+                      id="courseNumberBox"
+                      options={courseNumbers}
+                      getOptionLabel={(option) => option}
+                      renderInput={(params) => (
+                        <TextField {...params} label="Course number" variant="outlined" fullWidth />
+                      )}
+                      onSelect={(e) => this.setState({
+                        courseNumberBox: e.target.value,
+                      })}
+                    />
+                    <div style={{ display: 'flex', padding: '0 16px 16px 16px' }}>
+                      <Button color="primary" variant="outlined" onClick={this.handleAddClick} style={{ marginLeft: 'auto' }}>Add Course</Button>
+                    </div>
+                    {/* TODO: Alert for unavailable course */}
+                    {/* <Alert show={showAlert} variant="warning">
                 <Alert.Heading>Warning</Alert.Heading>
                 <p>
               The course
@@ -351,11 +366,17 @@ class WelcomePage extends React.Component {
                   <Button onClick={() => this.setState({ showAlert: false })} variant="outline-warning">OK</Button>
                 </div>
               </Alert> */}
-            </Card>
-          </CardGroup>
-          <Button style={{ margin: '16px' }} onClick={this.handleViewScheduleClick}>View Recommended Schedules</Button>
-        </Modal>
-      </div>
+                  </Grid>
+                </Grid>
+                <Divider />
+                <div style={{ padding: 16 }}>
+                  <Button size="large" variant="contained" color="primary" fullWidth onClick={this.handleViewScheduleClick}>View Recommended Schedules</Button>
+                </div>
+              </Paper>
+            </Fade>
+          </Modal>
+        </div>
+      </ThemeProvider>
     );
   }
 }

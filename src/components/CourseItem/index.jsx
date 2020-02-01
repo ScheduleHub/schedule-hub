@@ -1,4 +1,5 @@
 import React from 'react';
+import PropTypes from 'prop-types';
 import {
   ListItem, ListItemText, ListItemSecondaryAction, IconButton, Tooltip,
 } from '@material-ui/core';
@@ -19,10 +20,12 @@ function CourseItem(props) {
             ? 'This course will be kept unchanged in the schedule.'
             : 'This course is allowed to be changed'}
         >
-          <IconButton aria-label="keep unchanged" disabled={!keepable || true}>
-            {/* Remove || true when implementing keepable */}
-            {keep ? <Lock /> : <LockOpen />}
-          </IconButton>
+          <span>
+            <IconButton aria-label="keep unchanged" disabled={!keepable || true}>
+              {/* Remove || true when implementing keepable */}
+              {keep ? <Lock /> : <LockOpen />}
+            </IconButton>
+          </span>
         </Tooltip>
         <Tooltip title="Drop this course">
           <IconButton aria-label="drop" onClick={onDropClick}>
@@ -33,5 +36,12 @@ function CourseItem(props) {
     </ListItem>
   );
 }
+
+CourseItem.propTypes = {
+  courseCode: PropTypes.string.isRequired,
+  keepable: PropTypes.bool.isRequired,
+  keep: PropTypes.bool.isRequired,
+  onDropClick: PropTypes.func.isRequired,
+};
 
 export default CourseItem;
