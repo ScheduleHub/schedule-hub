@@ -170,6 +170,7 @@ class WelcomePage extends React.Component {
     newCurrentCourses.push({
       courseCode,
       keepable: false,
+      keep: false,
     });
     const newCourseInfo = courseInfo.slice();
     newCourseInfo.push(response.data.data);
