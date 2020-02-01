@@ -232,7 +232,7 @@ class WelcomePage extends React.Component {
 
     return (
       <ThemeProvider theme={theme}>
-        <div className="padding-16">
+        <Box p={2}>
           <CssBaseline />
           <Snackbar open={!hideAlert} autoHideDuration={5000} anchorOrigin={{ vertical: 'top', horizontal: 'center' }}>
             <Alert severity="warning">
@@ -288,8 +288,10 @@ class WelcomePage extends React.Component {
                     onChange={(e) => this.updateRawCourses(e.target.value)}
                   />
                 </CardContent>
-                <CardActions className="stick-bottom" style={{ padding: 16 }}>
-                  <Button color="primary" variant="contained" size="large" fullWidth onClick={this.showModal}>Next</Button>
+                <CardActions className="stick-bottom">
+                  <Box p={1} width={1}>
+                    <Button color="primary" variant="contained" size="large" fullWidth onClick={this.showModal}>Next</Button>
+                  </Box>
                 </CardActions>
               </Card>
             </Grid>
@@ -308,9 +310,9 @@ class WelcomePage extends React.Component {
           >
             <Fade in={modalShow}>
               <Paper style={{ width: 800 }}>
-                <div className="header padding-16">
+                <Box p={2} className="header">
                   <Typography variant="h5">Edit my courses</Typography>
-                </div>
+                </Box>
                 <Grid container>
                   <Grid item xs={12} sm>
                     <List style={{ overflowY: 'scroll', height: 360 }}>
@@ -378,13 +380,13 @@ class WelcomePage extends React.Component {
                   </Grid>
                 </Grid>
                 <Divider />
-                <div className="padding-16">
+                <Box p={2}>
                   <Button size="large" variant="contained" color="primary" fullWidth onClick={this.handleViewScheduleClick}>View Recommended Schedules</Button>
-                </div>
+                </Box>
               </Paper>
             </Fade>
           </Modal>
-        </div>
+        </Box>
       </ThemeProvider>
     );
   }
