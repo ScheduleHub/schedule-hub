@@ -47,7 +47,7 @@ class WelcomePage extends React.Component {
       showAlert: false,
       rawCourses: '',
       courseInfo: [],
-      hideAlert: true,
+      scheduleInvalidAlertShow: false,
     };
   }
 
@@ -84,18 +84,24 @@ class WelcomePage extends React.Component {
     this.loadCourseInfo(courseNames);
   }
 
+  showScheduleInvalidAlert = () => this.setState({ scheduleInvalidAlertShow: true });
+
+  hideScheduleInvalidAlert = (event, reason) => {
+    if (reason === 'clickaway') {
+      return;
+    }
+    this.setState({ scheduleInvalidAlertShow: false });
+  }
+
   showModal = () => {
     const { rawCourses } = this.state;
     try {
       this.parseCourses(rawCourses);
       this.setState({
         modalShow: true,
-        hideAlert: true,
       });
     } catch (error) {
-      this.setState({
-        hideAlert: false,
-      });
+      this.showScheduleInvalidAlert();
     }
   }
 
@@ -151,6 +157,9 @@ class WelcomePage extends React.Component {
     const {
       subjectBox, courseNumberBox, currentCourses, courseInfo,
     } = this.state;
+    if (!subjectBox || !courseNumberBox) {
+      return;
+    }
     const url = `https://api.uwaterloo.ca/v2/courses/${subjectBox}/${courseNumberBox}/schedule.json`;
     const response = await axios.get(url, {
       params: {
@@ -229,15 +238,20 @@ class WelcomePage extends React.Component {
 
   render() {
     const {
-      modalShow, currentCourses, allSubjects, courseNumbers, showAlert, subjectBox, courseNumberBox, hideAlert,
+      modalShow, currentCourses, allSubjects, courseNumbers, showAlert, subjectBox, courseNumberBox, scheduleInvalidAlertShow,
     } = this.state;
 
     return (
       <ThemeProvider theme={theme}>
         <Box p={2}>
           <CssBaseline />
-          <Snackbar open={!hideAlert} autoHideDuration={5000} anchorOrigin={{ vertical: 'top', horizontal: 'center' }}>
-            <Alert severity="warning">
+          <Snackbar
+            open={scheduleInvalidAlertShow}
+            onClose={this.hideScheduleInvalidAlert}
+            autoHideDuration={3000}
+            anchorOrigin={{ vertical: 'top', horizontal: 'center' }}
+          >
+            <Alert severity="warning" onClose={this.hideScheduleInvalidAlert}>
               Your course info cannot be read. Please try again.
             </Alert>
           </Snackbar>
@@ -342,11 +356,16 @@ class WelcomePage extends React.Component {
                           <TextField {...params} label="Subject" variant="outlined" fullWidth />
                         )}
                         onSelect={(e) => {
+                          if (e.target.value === subjectBox) {
+                            return;
+                          }
                           this.loadCourseNumbers(e.target.value);
                           this.setState({
                             subjectBox: e.target.value.toUpperCase(),
+                            courseNumberBox: null,
                           });
                         }}
+                        value={subjectBox}
                       />
                       <Autocomplete
                         className="margin-bottom-16"
@@ -359,6 +378,7 @@ class WelcomePage extends React.Component {
                         onSelect={(e) => this.setState({
                           courseNumberBox: e.target.value,
                         })}
+                        value={courseNumberBox}
                       />
                       <div className="flex-container">
                         <Box ml="auto">
