@@ -1,7 +1,8 @@
 import React from 'react';
 import {
-  Button, TextField, Typography, makeStyles, Grid, Modal,
-  Card, CardContent, CardHeader, CardMedia, CardActions, Link, Paper, List, CssBaseline, Divider, Snackbar, Fade, Backdrop, createMuiTheme, ThemeProvider,
+  Button, TextField, Typography, makeStyles, Grid, Modal, Link, List,
+  Card, CardContent, CardHeader, CardMedia, CardActions,
+  Paper, CssBaseline, Divider, Snackbar, Fade, Backdrop, createMuiTheme, ThemeProvider, Box,
 } from '@material-ui/core';
 import { Autocomplete, Alert } from '@material-ui/lab';
 import { blue } from '@material-ui/core/colors';
@@ -231,19 +232,19 @@ class WelcomePage extends React.Component {
 
     return (
       <ThemeProvider theme={theme}>
-        <div style={{ padding: 16 }}>
+        <div className="padding-16">
           <CssBaseline />
           <Snackbar open={!hideAlert} autoHideDuration={5000} anchorOrigin={{ vertical: 'top', horizontal: 'center' }}>
             <Alert severity="warning">
           Your course info cannot be read. Please try again.
             </Alert>
           </Snackbar>
-          <img src={logo} alt="Logo" className="Logo" />
+          <img src={logo} alt="Logo" className="logo" />
 
           <Grid container justify="center" spacing={4}>
             <Grid item xs={12} md={4} lg={3}>
               <Card raised>
-                <CardHeader title="Step 1" style={{ background: '#f5f5f5' }} />
+                <CardHeader title="Step 1" className="header" />
                 <CardContent>
                   <Typography variant="body1">
                   Go to&nbsp;
@@ -254,28 +255,30 @@ class WelcomePage extends React.Component {
                 <CardMedia
                   image="https://uwflow.com/static/img/import-schedule/step-1.png"
                   title="Go to Class Schedule"
-                  style={{ height: 0, paddingTop: '100%' }}
+                  className="step-img"
                 />
               </Card>
             </Grid>
             <Grid item xs={12} md={4} lg={3}>
               <Card raised>
-                <CardHeader title="Step 2" style={{ background: '#f5f5f5' }} />
+                <CardHeader title="Step 2" className="header" />
                 <CardContent>
                   <Typography variant="body1">Choose your term, then select all and copy.</Typography>
                 </CardContent>
                 <CardMedia
                   image="https://uwflow.com/static/img/import-schedule/step-2.png"
                   title="Select All and Copy"
-                  style={{ height: 0, paddingTop: '100%' }}
+                  className="step-img"
                 />
               </Card>
             </Grid>
             <Grid item xs={12} md={4} lg={3}>
               <Card raised style={{ display: 'flex', flexDirection: 'column', height: '100%' }}>
-                <CardHeader title="Step 3" style={{ background: '#f5f5f5' }} />
+                <CardHeader title="Step 3" className="header" />
                 <CardContent>
-                  <Typography variant="body1" gutterBottom style={{ marginBottom: 16 }}>Paste into the box below.</Typography>
+                  <Box mb={2}>
+                    <Typography variant="body1">Paste into the box below.</Typography>
+                  </Box>
                   <TextField
                     multiline
                     required
@@ -285,7 +288,7 @@ class WelcomePage extends React.Component {
                     onChange={(e) => this.updateRawCourses(e.target.value)}
                   />
                 </CardContent>
-                <CardActions style={{ padding: 16, marginTop: 'auto' }}>
+                <CardActions className="stick-bottom" style={{ padding: 16 }}>
                   <Button color="primary" variant="contained" size="large" fullWidth onClick={this.showModal}>Next</Button>
                 </CardActions>
               </Card>
@@ -295,7 +298,8 @@ class WelcomePage extends React.Component {
           <Modal
             open={modalShow}
             onClose={this.hideModal}
-            style={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}
+            className="flex-container"
+            style={{ alignItems: 'center', justifyContent: 'center' }}
             BackdropComponent={Backdrop}
             BackdropProps={{
               timeout: 500,
@@ -304,7 +308,7 @@ class WelcomePage extends React.Component {
           >
             <Fade in={modalShow}>
               <Paper style={{ width: 800 }}>
-                <div style={{ padding: 16, background: '#f5f5f5' }}>
+                <div className="header padding-16">
                   <Typography variant="h5">Edit my courses</Typography>
                 </div>
                 <Grid container>
@@ -325,37 +329,40 @@ class WelcomePage extends React.Component {
                     </List>
                   </Grid>
                   <Grid item xs={12} sm>
-                    <Autocomplete
-                      className="AutoCompleteInput"
-                      id="subjectBox"
-                      options={allSubjects}
-                      renderInput={(params) => (
-                        <TextField {...params} label="Subject" variant="outlined" fullWidth />
-                      )}
-                      onSelect={(e) => {
-                        this.loadCourseNumbers(e.target.value);
-                        this.setState({
-                          subjectBox: e.target.value.toUpperCase(),
-                        });
-                      }}
-                    />
-                    <Autocomplete
-                      className="AutoCompleteInput"
-                      id="courseNumberBox"
-                      options={courseNumbers}
-                      getOptionLabel={(option) => option}
-                      renderInput={(params) => (
-                        <TextField {...params} label="Course number" variant="outlined" fullWidth />
-                      )}
-                      onSelect={(e) => this.setState({
-                        courseNumberBox: e.target.value,
-                      })}
-                    />
-                    <div style={{ display: 'flex', padding: '0 16px 16px 16px' }}>
-                      <Button color="primary" variant="outlined" onClick={this.handleAddClick} style={{ marginLeft: 'auto' }}>Add Course</Button>
-                    </div>
-                    {/* TODO: Alert for unavailable course */}
-                    {/* <Alert show={showAlert} variant="warning">
+                    <Box p={2}>
+                      <Autocomplete
+                        className="margin-bottom-16"
+                        id="subjectBox"
+                        options={allSubjects}
+                        renderInput={(params) => (
+                          <TextField {...params} label="Subject" variant="outlined" fullWidth />
+                        )}
+                        onSelect={(e) => {
+                          this.loadCourseNumbers(e.target.value);
+                          this.setState({
+                            subjectBox: e.target.value.toUpperCase(),
+                          });
+                        }}
+                      />
+                      <Autocomplete
+                        className="margin-bottom-16"
+                        id="courseNumberBox"
+                        options={courseNumbers}
+                        getOptionLabel={(option) => option}
+                        renderInput={(params) => (
+                          <TextField {...params} label="Course number" variant="outlined" fullWidth />
+                        )}
+                        onSelect={(e) => this.setState({
+                          courseNumberBox: e.target.value,
+                        })}
+                      />
+                      <div className="flex-container">
+                        <Box ml="auto">
+                          <Button color="primary" variant="outlined" onClick={this.handleAddClick}>Add Course</Button>
+                        </Box>
+                      </div>
+                      {/* TODO: Alert for unavailable course */}
+                      {/* <Alert show={showAlert} variant="warning">
                 <Alert.Heading>Warning</Alert.Heading>
                 <p>
               The course
@@ -367,10 +374,11 @@ class WelcomePage extends React.Component {
                   <Button onClick={() => this.setState({ showAlert: false })} variant="outline-warning">OK</Button>
                 </div>
               </Alert> */}
+                    </Box>
                   </Grid>
                 </Grid>
                 <Divider />
-                <div style={{ padding: 16 }}>
+                <div className="padding-16">
                   <Button size="large" variant="contained" color="primary" fullWidth onClick={this.handleViewScheduleClick}>View Recommended Schedules</Button>
                 </div>
               </Paper>
