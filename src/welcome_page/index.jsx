@@ -8,10 +8,12 @@ import { Autocomplete, Alert } from '@material-ui/lab';
 import { blue } from '@material-ui/core/colors';
 import _ from 'lodash';
 import axios from 'axios';
-import CourseItem from '../components/CourseItem';
+import CourseItem from 'components/CourseItem';
 import './index.css';
-import { areAssociated, getCourseCode } from '../utils/courses';
-import logo from './icon.svg';
+import { areAssociated, getCourseCode } from 'utils/courses';
+import logo from 'res/icon.svg';
+import step1 from 'res/calendar-step-1.png';
+import step2 from 'res/calendar-step-2.png';
 
 const apiKey = '4ad350333dc3859b91bcf443d14e4bf0';
 
@@ -236,7 +238,7 @@ class WelcomePage extends React.Component {
           <CssBaseline />
           <Snackbar open={!hideAlert} autoHideDuration={5000} anchorOrigin={{ vertical: 'top', horizontal: 'center' }}>
             <Alert severity="warning">
-          Your course info cannot be read. Please try again.
+              Your course info cannot be read. Please try again.
             </Alert>
           </Snackbar>
           <img src={logo} alt="Logo" className="logo" />
@@ -247,13 +249,13 @@ class WelcomePage extends React.Component {
                 <CardHeader title="Step 1" className="header" />
                 <CardContent>
                   <Typography variant="body1">
-                  Go to&nbsp;
+                    Go to&nbsp;
                     <Link href="https://quest.pecs.uwaterloo.ca/psp/SS/ACADEMIC/SA/?cmd=login&languageCd=ENG" target="_blank">Quest</Link>
-                  &nbsp;and click &quot;Class Schedule&quot;.
+                    &nbsp;and click &quot;Class Schedule&quot;.
                   </Typography>
                 </CardContent>
                 <CardMedia
-                  image="https://uwflow.com/static/img/import-schedule/step-1.png"
+                  image={step1}
                   title="Go to Class Schedule"
                   className="step-img"
                 />
@@ -266,7 +268,7 @@ class WelcomePage extends React.Component {
                   <Typography variant="body1">Choose your term, then select all and copy.</Typography>
                 </CardContent>
                 <CardMedia
-                  image="https://uwflow.com/static/img/import-schedule/step-2.png"
+                  image={step2}
                   title="Select All and Copy"
                   className="step-img"
                 />
@@ -309,7 +311,7 @@ class WelcomePage extends React.Component {
             closeAfterTransition
           >
             <Fade in={modalShow}>
-              <Paper style={{ width: 800 }}>
+              <Paper style={{ width: 800, outline: 'none' }}>
                 <Box p={2} className="header">
                   <Typography variant="h5">Edit my courses</Typography>
                 </Box>
@@ -373,7 +375,7 @@ class WelcomePage extends React.Component {
                 </p>
                 <hr />
                 <div className="d-flex justify-content-end">
-                  <Button onClick={() => this.setState({ showAlert: false })} variant="outline-warning">OK</Button>
+                <Button onClick={() => this.setState({ showAlert: false })} variant="outline-warning">OK</Button>
                 </div>
               </Alert> */}
                     </Box>
