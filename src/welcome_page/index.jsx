@@ -108,6 +108,8 @@ class WelcomePage extends React.Component {
   hideModal = () => {
     this.setState({
       modalShow: false,
+      subjectBox: null,
+      courseNumberBox: null,
     });
   }
 
@@ -235,10 +237,10 @@ class WelcomePage extends React.Component {
     console.log(data);
   }
 
-
   render() {
     const {
-      modalShow, currentCourses, allSubjects, courseNumbers, showAlert, subjectBox, courseNumberBox, scheduleInvalidAlertShow,
+      modalShow, currentCourses, allSubjects, courseNumbers, showAlert,
+      subjectBox, courseNumberBox, scheduleInvalidAlertShow,
     } = this.state;
 
     return (
