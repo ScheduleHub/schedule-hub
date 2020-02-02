@@ -44,7 +44,7 @@ class WelcomePage extends React.Component {
       courseNumbers: [],
       subjectBox: '',
       courseNumberBox: '',
-      showAlert: false,
+      courseUnavailAlertShow: false,
       rawCourses: '',
       courseInfo: [],
       scheduleInvalidAlertShow: false,
@@ -92,6 +92,10 @@ class WelcomePage extends React.Component {
     }
     this.setState({ scheduleInvalidAlertShow: false });
   }
+
+  showCourseUnavailAlert = () => this.setState({ courseUnavailAlertShow: true });
+
+  hideCourseUnavailAlert = () => this.setState({ courseUnavailAlertShow: false });
 
   showModal = () => {
     const { rawCourses } = this.state;
@@ -170,10 +174,7 @@ class WelcomePage extends React.Component {
     });
     const courseCode = `${subjectBox} ${courseNumberBox}`;
     if (response.data.meta.status !== 200) {
-      // this.setState({
-      //   showAlert: true,
-      // });
-      alert(`The course ${courseCode} is unavailable for this term.`);
+      this.showCourseUnavailAlert();
       return;
     }
 
@@ -239,8 +240,8 @@ class WelcomePage extends React.Component {
 
   render() {
     const {
-      modalShow, currentCourses, allSubjects, courseNumbers, showAlert,
-      subjectBox, courseNumberBox, scheduleInvalidAlertShow,
+      modalShow, currentCourses, allSubjects, courseNumbers,
+      subjectBox, courseNumberBox, scheduleInvalidAlertShow, courseUnavailAlertShow,
     } = this.state;
 
     return (
@@ -387,19 +388,17 @@ class WelcomePage extends React.Component {
                           <Button color="primary" variant="outlined" onClick={this.handleAddClick}>Add Course</Button>
                         </Box>
                       </div>
-                      {/* TODO: Alert for unavailable course */}
-                      {/* <Alert show={showAlert} variant="warning">
-                <Alert.Heading>Warning</Alert.Heading>
-                <p>
-              The course
-                  <strong>{` ${subjectBox} ${courseNumberBox} `}</strong>
-              is unavailable this term.
-                </p>
-                <hr />
-                <div className="d-flex justify-content-end">
-                <Button onClick={() => this.setState({ showAlert: false })} variant="outline-warning">OK</Button>
-                </div>
-              </Alert> */}
+                      <Snackbar
+                        open={courseUnavailAlertShow}
+                        onClose={this.hideCourseUnavailAlert}
+                        autoHideDuration={3000}
+                        anchorOrigin={{ vertical: 'top', horizontal: 'center' }}
+                      >
+                        <Alert severity="warning" onClose={this.hideCourseUnavailAlert}>
+                          {`${subjectBox} ${courseNumberBox}`}
+                          &nbsp;is unavailable for this term.
+                        </Alert>
+                      </Snackbar>
                     </Box>
                   </Grid>
                 </Grid>
