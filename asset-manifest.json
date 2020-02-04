@@ -1,16 +1,16 @@
 {
   "files": {
-    "main.css": "/schedule-planner/static/css/main.cf093999.chunk.css",
-    "main.js": "/schedule-planner/static/js/main.a0187c66.chunk.js",
-    "main.js.map": "/schedule-planner/static/js/main.a0187c66.chunk.js.map",
+    "main.css": "/schedule-planner/static/css/main.6fc4887a.chunk.css",
+    "main.js": "/schedule-planner/static/js/main.db5d2c60.chunk.js",
+    "main.js.map": "/schedule-planner/static/js/main.db5d2c60.chunk.js.map",
     "runtime-main.js": "/schedule-planner/static/js/runtime-main.4085c92f.js",
     "runtime-main.js.map": "/schedule-planner/static/js/runtime-main.4085c92f.js.map",
     "static/js/2.39c58106.chunk.js": "/schedule-planner/static/js/2.39c58106.chunk.js",
     "static/js/2.39c58106.chunk.js.map": "/schedule-planner/static/js/2.39c58106.chunk.js.map",
     "index.html": "/schedule-planner/index.html",
-    "precache-manifest.13175b22b47b8b38fa0d35f2e54ed319.js": "/schedule-planner/precache-manifest.13175b22b47b8b38fa0d35f2e54ed319.js",
+    "precache-manifest.02cbf94cad6076c2f9a4c211f6e53547.js": "/schedule-planner/precache-manifest.02cbf94cad6076c2f9a4c211f6e53547.js",
     "service-worker.js": "/schedule-planner/service-worker.js",
-    "static/css/main.cf093999.chunk.css.map": "/schedule-planner/static/css/main.cf093999.chunk.css.map",
+    "static/css/main.6fc4887a.chunk.css.map": "/schedule-planner/static/css/main.6fc4887a.chunk.css.map",
     "static/js/2.39c58106.chunk.js.LICENSE": "/schedule-planner/static/js/2.39c58106.chunk.js.LICENSE",
     "static/media/calendar-step-1.png": "/schedule-planner/static/media/calendar-step-1.6611ddd8.png",
     "static/media/calendar-step-2.png": "/schedule-planner/static/media/calendar-step-2.cb8ab16f.png",
@@ -19,7 +19,7 @@
   "entrypoints": [
     "static/js/runtime-main.4085c92f.js",
     "static/js/2.39c58106.chunk.js",
-    "static/css/main.cf093999.chunk.css",
-    "static/js/main.a0187c66.chunk.js"
+    "static/css/main.6fc4887a.chunk.css",
+    "static/js/main.db5d2c60.chunk.js"
   ]
 }
