@@ -253,7 +253,7 @@ class WelcomePage extends React.Component {
                   <Typography variant="body1">Choose your term, select all and copy.</Typography>
                 </CardContent>
                 <CardMedia
-                  image={step2 }
+                  image={step2}
                   title="Select All and Copy"
                   className="step-img"
                 />
