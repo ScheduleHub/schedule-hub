@@ -228,9 +228,9 @@ class WelcomePage extends React.Component {
           </Snackbar>
           <img src={logo} alt="Logo" className="logo" />
 
-          <Grid container justify="center" spacing={4}>
+          <Grid container justify="center" spacing={6}>
             <Grid item xs={12} md={4} lg={3}>
-              <Card raised>
+              <Card className="card" raised>
                 <CardHeader title="Step 1" className="header" />
                 <CardContent>
                   <Typography variant="body1">
@@ -247,10 +247,10 @@ class WelcomePage extends React.Component {
               </Card>
             </Grid>
             <Grid item xs={12} md={4} lg={3}>
-              <Card raised>
+              <Card className="card" raised>
                 <CardHeader title="Step 2" className="header" />
                 <CardContent>
-                  <Typography variant="body1">Choose your term, then select all and copy.</Typography>
+                  <Typography variant="body1">Choose your term, select all and copy.</Typography>
                 </CardContent>
                 <CardMedia
                   image={step2}
