@@ -10,7 +10,7 @@ import _ from 'lodash';
 import axios from 'axios';
 import CourseItem from 'components/CourseItem';
 import './index.css';
-import { areAssociated, getCourseCode } from 'utils/courses';
+import { areAssociated, getCourseCode, formatPostData } from 'utils/courses';
 import logo from 'res/icon.svg';
 import step1 from 'res/calendar-step-1.png';
 import step2 from 'res/calendar-step-2.png';
@@ -202,44 +202,7 @@ class WelcomePage extends React.Component {
 
   handleViewScheduleClick = () => {
     const { currentCourses, currentClasses, courseInfo } = this.state;
-    const grouped = courseInfo.map((/** @type {[]} */ course) => {
-      const dict = _.groupBy(course, (s) => s.section[4]);
-      const groupedSectionList = [];
-      _.forEach(dict, (value, key) => {
-        groupedSectionList[key] = value;
-      });
-      return groupedSectionList;
-    });
-
-    const currentCoursesDict = _.keyBy(currentCourses, 'courseCode');
-
-    const associatedClassList = grouped.map((course) => {
-      let primary = course[0];
-      const keepUnchanged = currentCoursesDict[getCourseCode(primary[0])].keep;
-      if (keepUnchanged) {
-        primary = primary.filter((section) => currentClasses.includes(section.class_number));
-      }
-
-      const other = course.slice(1);
-      const rearranged = primary.map((primarySection) => {
-        const allowedComponents = other.map((component) => {
-          let allowedSections = component.filter(
-            (section) => areAssociated(primarySection, section),
-          );
-          if (_.isEmpty(allowedSections)) {
-            allowedSections = component.filter((section) => section.associated_class === 99);
-          }
-          return _.map(allowedSections, 'class_number');
-        });
-        return [[primarySection.class_number]].concat(allowedComponents);
-      });
-      return rearranged;
-    });
-
-    const data = {
-      courses_info: courseInfo,
-      filtered_courses: associatedClassList,
-    };
+    const data = formatPostData(currentCourses, currentClasses, courseInfo);
     console.log(data);
   }
 
