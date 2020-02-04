@@ -1,16 +1,15 @@
 import React from 'react';
 import {
-  Button, TextField, Typography, makeStyles, Grid, Modal, Link, List,
+  Button, TextField, Typography, Grid, Modal, Link, List,
   Card, CardContent, CardHeader, CardMedia, CardActions,
   Paper, CssBaseline, Divider, Snackbar, Fade, Backdrop, createMuiTheme, ThemeProvider, Box,
 } from '@material-ui/core';
 import { Autocomplete, Alert } from '@material-ui/lab';
 import { blue } from '@material-ui/core/colors';
-import _ from 'lodash';
 import axios from 'axios';
 import CourseItem from 'components/CourseItem';
 import './index.css';
-import { areAssociated, getCourseCode, formatPostData } from 'utils/courses';
+import { getCourseCode, formatPostData } from 'utils/courses';
 import logo from 'res/icon.svg';
 import step1 from 'res/calendar-step-1.png';
 import step2 from 'res/calendar-step-2.png';
@@ -27,11 +26,11 @@ const theme = createMuiTheme({
   },
 });
 
-const useStyles = makeStyles((theme) => ({
-  screenshot: {
-    height: 300,
-  },
-}));
+// const useStyles = makeStyles((theme) => ({
+//   screenshot: {
+//     height: 300,
+//   },
+// }));
 
 class WelcomePage extends React.Component {
   constructor(props) {
@@ -67,7 +66,6 @@ class WelcomePage extends React.Component {
       },
     }))).then((values) => {
       const courseInfo = values.map((value) => value.data.data);
-      console.log(courseInfo);
       this.setState({ courseInfo });
     });
   }
@@ -203,6 +201,7 @@ class WelcomePage extends React.Component {
   handleViewScheduleClick = () => {
     const { currentCourses, currentClasses, courseInfo } = this.state;
     const data = formatPostData(currentCourses, currentClasses, courseInfo);
+    // eslint-disable-next-line no-console
     console.log(data);
   }
 
@@ -324,7 +323,9 @@ class WelcomePage extends React.Component {
                         id="subjectBox"
                         options={allSubjects}
                         renderInput={(params) => (
-                          <TextField {...params}
+                          <TextField
+                            // eslint-disable-next-line react/jsx-props-no-spreading
+                            {...params}
                             label="Subject"
                             variant="outlined"
                             fullWidth
@@ -351,7 +352,9 @@ class WelcomePage extends React.Component {
                         options={courseNumbers}
                         getOptionLabel={(option) => option}
                         renderInput={(params) => (
-                          <TextField {...params}
+                          <TextField
+                            // eslint-disable-next-line react/jsx-props-no-spreading
+                            {...params}
                             label="Course number"
                             variant="outlined"
                             fullWidth
