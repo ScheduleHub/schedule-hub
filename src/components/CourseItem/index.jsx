@@ -1,65 +1,49 @@
 import React from 'react';
-import { Button } from 'react-bootstrap';
-import 'bootstrap/dist/css/bootstrap.min.css';
+import PropTypes from 'prop-types';
+import {
+  ListItem, ListItemText, ListItemSecondaryAction, IconButton, Tooltip, Hidden,
+} from '@material-ui/core';
+import { Close, Lock, LockOpen } from '@material-ui/icons';
 
-class CourseItem extends React.Component {
-  constructor(props) {
-    super(props);
-    const {
-      courseCode, keepable, keep, onDropClick,
-    } = props;
-    this.courseCode = courseCode;
-    this.keepable = keepable;
-    this.keep = keep;
-    this.onDropClick = onDropClick;
-    this.state = {
-      isHovered: false,
-    };
-  }
+function CourseItem(props) {
+  const {
+    courseCode, keepable, keep, onDropClick,
+  } = props;
 
-  onMouseEnter = () => {
-    this.setState({
-      isHovered: true,
-    });
-  }
-
-  onMouseLeave = () => {
-    this.setState({
-      isHovered: false,
-    });
-  }
-
-  onKeepChange = (checked) => {
-    this.setState({ keep: checked });
-  }
-
-  render() {
-    const { isHovered } = this.state;
-    const style = isHovered ? {} : { visibility: 'hidden' };
-    return (
-      <tr
-        onClick={this.onClick}
-        onMouseOver={this.onMouseEnter}
-        onMouseOut={this.onMouseLeave}
-      >
-        <td style={{ verticalAlign: 'middle' }}>{this.courseCode}</td>
-        {/* <td className="KeepColumn">
-          <Form.Check
-            custom
-            type="checkbox"
-            id={`checkbox-keep-${this.courseCode}`}
-            label=""
-            disabled={!this.keepable}
-            style={{ verticalAlign: 'middle' }}
-            onChange={(e) => this.onKeepChange(e.target.checked)}
-          />
-        </td> */}
-        <td style={{ textAlign: 'right' }}>
-          <Button size="sm" variant="outline-danger" style={style} className="DropButton" onClick={this.onDropClick}>✕</Button>
-        </td>
-      </tr>
-    );
-  }
+  return (
+    <ListItem>
+      <ListItemText primary={courseCode} />
+      <ListItemSecondaryAction>
+        {/* TODO: Keep toggle */}
+        <Hidden xsUp={!keepable}>
+          <Tooltip
+            title={keep
+              ? 'This course will be kept unchanged in the schedule.'
+              : 'This course is allowed to be changed'}
+          >
+            <span>
+              <IconButton aria-label="keep unchanged" disabled={!keepable || true}>
+                {/* Remove || true when implementing keepable */}
+                {keep ? <Lock /> : <LockOpen />}
+              </IconButton>
+            </span>
+          </Tooltip>
+        </Hidden>
+        <Tooltip title="Drop this course">
+          <IconButton aria-label="drop" onClick={onDropClick}>
+            <Close />
+          </IconButton>
+        </Tooltip>
+      </ListItemSecondaryAction>
+    </ListItem>
+  );
 }
+
+CourseItem.propTypes = {
+  courseCode: PropTypes.string.isRequired,
+  keepable: PropTypes.bool.isRequired,
+  keep: PropTypes.bool.isRequired,
+  onDropClick: PropTypes.func.isRequired,
+};
 
 export default CourseItem;

@@ -1,18 +1,37 @@
 import React from 'react';
 import {
-  Alert, Button, CardDeck, Card, Form, Modal, CardGroup, Table,
-} from 'react-bootstrap';
-import TextField from '@material-ui/core/TextField';
-import Autocomplete from '@material-ui/lab/Autocomplete';
+  Button, TextField, Typography, makeStyles, Grid, Modal, Link, List,
+  Card, CardContent, CardHeader, CardMedia, CardActions,
+  Paper, CssBaseline, Divider, Snackbar, Fade, Backdrop, createMuiTheme, ThemeProvider, Box,
+} from '@material-ui/core';
+import { Autocomplete, Alert } from '@material-ui/lab';
+import { blue } from '@material-ui/core/colors';
 import _ from 'lodash';
 import axios from 'axios';
-import 'bootstrap/dist/css/bootstrap.min.css';
-import CourseItem from '../components/CourseItem';
+import CourseItem from 'components/CourseItem';
 import './index.css';
-import { areAssociated, getCourseCode, formatPostData } from '../utils/courses';
-import logo from './icon.svg';
+import { areAssociated, getCourseCode, formatPostData } from 'utils/courses';
+import logo from 'res/icon.svg';
+import step1 from 'res/calendar-step-1.png';
+import step2 from 'res/calendar-step-2.png';
 
 const apiKey = '4ad350333dc3859b91bcf443d14e4bf0';
+
+const theme = createMuiTheme({
+  palette: {
+    primary: {
+      main: blue[500],
+      light: '#6ec6ff',
+      dark: '#0069c0',
+    },
+  },
+});
+
+const useStyles = makeStyles((theme) => ({
+  screenshot: {
+    height: 300,
+  },
+}));
 
 class WelcomePage extends React.Component {
   constructor(props) {
@@ -25,11 +44,12 @@ class WelcomePage extends React.Component {
       courseNumbers: [],
       subjectBox: '',
       courseNumberBox: '',
-      showAlert: false,
+      courseUnavailAlertShow: false,
       rawCourses: '',
       courseInfo: [],
-      hideAlert: true,
+      scheduleInvalidAlertShow: false,
     };
+    this.courseNumberBoxRef = React.createRef();
   }
 
   componentDidMount() {
@@ -65,34 +85,44 @@ class WelcomePage extends React.Component {
     this.loadCourseInfo(courseNames);
   }
 
+  showScheduleInvalidAlert = () => this.setState({ scheduleInvalidAlertShow: true });
+
+  hideScheduleInvalidAlert = (event, reason) => {
+    if (reason === 'clickaway') {
+      return;
+    }
+    this.setState({ scheduleInvalidAlertShow: false });
+  }
+
+  showCourseUnavailAlert = () => this.setState({ courseUnavailAlertShow: true });
+
+  hideCourseUnavailAlert = () => this.setState({ courseUnavailAlertShow: false });
+
   showModal = () => {
     const { rawCourses } = this.state;
     try {
       this.parseCourses(rawCourses);
       this.setState({
         modalShow: true,
-        hideAlert: true,
       });
     } catch (error) {
-      this.setState({
-        hideAlert: false,
-      });
+      this.showScheduleInvalidAlert();
     }
   }
 
   hideModal = () => {
     this.setState({
       modalShow: false,
+      subjectBox: '',
+      courseNumberBox: '',
+      courseNumbers: [],
     });
   }
 
   dropCourse = (courseCode) => {
     const { currentCourses, courseInfo } = this.state;
     const newCurrentCourses = currentCourses.filter((item) => item.courseCode !== courseCode);
-    const newCourseInfo = courseInfo.filter((item) => {
-      const { subject, catalog_number } = item[0];
-      return `${subject} ${catalog_number}` !== courseCode;
-    });
+    const newCourseInfo = courseInfo.filter((item) => getCourseCode(item[0]) !== courseCode);
     this.setState({
       currentCourses: newCurrentCourses,
       courseInfo: newCourseInfo,
@@ -114,7 +144,10 @@ class WelcomePage extends React.Component {
   }
 
   loadCourseNumbers = async (subject) => {
-    if (!subject) return;
+    if (!subject) {
+      this.setState({ courseNumbers: [] });
+      return;
+    }
     const url = `https://api.uwaterloo.ca/v2/courses/${subject}.json`;
     const response = await axios.get(url, {
       params: {
@@ -135,6 +168,9 @@ class WelcomePage extends React.Component {
     const {
       subjectBox, courseNumberBox, currentCourses, courseInfo,
     } = this.state;
+    if (!subjectBox || !courseNumberBox) {
+      return;
+    }
     const url = `https://api.uwaterloo.ca/v2/courses/${subjectBox}/${courseNumberBox}/schedule.json`;
     const response = await axios.get(url, {
       params: {
@@ -143,10 +179,7 @@ class WelcomePage extends React.Component {
     });
     const courseCode = `${subjectBox} ${courseNumberBox}`;
     if (response.data.meta.status !== 200) {
-      // this.setState({
-      //   showAlert: true,
-      // });
-      alert(`The course ${courseCode} is unavailable for this term.`);
+      this.showCourseUnavailAlert();
       return;
     }
 
@@ -157,6 +190,7 @@ class WelcomePage extends React.Component {
     newCurrentCourses.push({
       courseCode,
       keepable: false,
+      keep: false,
     });
     const newCourseInfo = courseInfo.slice();
     newCourseInfo.push(response.data.data);
@@ -172,134 +206,193 @@ class WelcomePage extends React.Component {
     console.log(data);
   }
 
-
   render() {
     const {
-      modalShow, currentCourses, allSubjects, courseNumbers, showAlert, subjectBox, courseNumberBox, hideAlert,
+      modalShow, currentCourses, allSubjects, courseNumbers,
+      subjectBox, courseNumberBox, scheduleInvalidAlertShow, courseUnavailAlertShow,
     } = this.state;
+
     return (
-      <div className="WelcomePage">
-        <Alert variant="warning" hidden={hideAlert}>
-          Your course info cannot be read. Please try again.
-        </Alert>
-        <img src={logo} alt="Logo" className="Logo" />
-        <CardDeck className="StepsDeck">
-          <Card className="Card" border="primary">
-            <Card.Header
-              as="h5"
-              style={{ borderTopLeftRadius: '20px', borderTopRightRadius: '20px' }}
-            >
-              Step 1
-            </Card.Header>
-            <Card.Body>
-              <Card.Text>Go to Quest and click &quot;Class Schedule&quot;.</Card.Text>
-              <Card.Img src="https://uwflow.com/static/img/import-schedule/step-1.png" />
-            </Card.Body>
-          </Card>
-          <Card className="Card">
-            <Card.Header
-              as="h5"
-              style={{ borderTopLeftRadius: '20px', borderTopRightRadius: '20px' }}
-            >
-              Step 2
-            </Card.Header>
-            <Card.Body>
-              <Card.Text>Choose your term, then select all and copy.</Card.Text>
-              <Card.Img src="https://uwflow.com/static/img/import-schedule/step-2.png" />
-            </Card.Body>
-          </Card>
-          <Card className="Card">
-            <Card.Header
-              as="h5"
-              style={{ borderTopLeftRadius: '20px', borderTopRightRadius: '20px' }}
-            >
-              Step 3
-            </Card.Header>
-            <Card.Body>
-              <Card.Text>Paste into the box below.</Card.Text>
-              <Form>
-                <Form.Group>
-                  <Form.Control as="textarea" className="PasteBox" rows="12" onChange={(e) => this.updateRawCourses(e.target.value)} />
-                </Form.Group>
-                <Button className="NextButton" block onClick={this.showModal}>Next</Button>
-              </Form>
-            </Card.Body>
-          </Card>
-        </CardDeck>
-        <Modal size="lg" show={modalShow} onHide={this.hideModal}>
-          <CardGroup>
-            <Card className="CourseEditCard" style={{ overflowY: 'scroll' }}>
-              <Table hover>
-                <thead>
-                  <tr>
-                    <th>Course</th>
-                    {/* <th className="KeepColumn">Keep unchanged?</th> */}
-                  </tr>
-                </thead>
-                <tbody>
-                  {
-                    currentCourses.map((item) => {
-                      const { courseCode, keepable, keep } = item;
-                      return (
-                        <CourseItem
-                          key={courseCode}
-                          courseCode={courseCode}
-                          keepable={keepable}
-                          keep={keep}
-                          onDropClick={() => this.dropCourse(courseCode)}
-                        />
-                      );
-                    })
-                  }
-                </tbody>
-              </Table>
-            </Card>
-            <Card className="CourseEditCard">
-              <Autocomplete
-                className="AutoCompleteInput"
-                id="subjectBox"
-                options={allSubjects}
-                renderInput={(params) => (
-                  <TextField {...params} label="Subject" variant="outlined" fullWidth />
-                )}
-                fullWidth
-                onSelect={(e) => {
-                  this.loadCourseNumbers(e.target.value);
-                  this.setState({
-                    subjectBox: e.target.value.toUpperCase(),
-                  });
-                }}
-              />
-              <Autocomplete
-                className="AutoCompleteInput"
-                id="courseNumberBox"
-                options={courseNumbers}
-                getOptionLabel={(option) => option}
-                renderInput={(params) => (
-                  <TextField {...params} label="Course number" variant="outlined" fullWidth />
-                )}
-                onSelect={(e) => this.setState({
-                  courseNumberBox: e.target.value,
-                })}
-              />
-              <Button onClick={this.handleAddClick} style={{ margin: '16px' }}>Add</Button>
-              {/* <Alert show={showAlert} variant="warning">
-                <Alert.Heading>Warning</Alert.Heading>
-                <p>
-              The course
-                  <strong>{` ${subjectBox} ${courseNumberBox} `}</strong>
-              is unavailable this term.
-                </p>
-                <hr />
-                <div className="d-flex justify-content-end">
-                  <Button onClick={() => this.setState({ showAlert: false })} variant="outline-warning">OK</Button>
-                </div>
-              </Alert> */}
-            </Card>
-          </CardGroup>
-          <Button style={{ margin: '16px' }} onClick={this.handleViewScheduleClick}>View Recommended Schedules</Button>
-        </Modal>
-      </div>
+      <ThemeProvider theme={theme}>
+        <Box p={2}>
+          <CssBaseline />
+          <Snackbar
+            open={scheduleInvalidAlertShow}
+            onClose={this.hideScheduleInvalidAlert}
+            autoHideDuration={3000}
+            anchorOrigin={{ vertical: 'top', horizontal: 'center' }}
+          >
+            <Alert severity="warning" onClose={this.hideScheduleInvalidAlert}>
+              Your course info cannot be read. Please try again.
+            </Alert>
+          </Snackbar>
+          <img src={logo} alt="Logo" className="logo" />
+
+          <Grid container justify="center" spacing={4}>
+            <Grid item xs={12} md={4} lg={3}>
+              <Card raised>
+                <CardHeader title="Step 1" className="header" />
+                <CardContent>
+                  <Typography variant="body1">
+                    Go to&nbsp;
+                    <Link href="https://quest.pecs.uwaterloo.ca/psp/SS/ACADEMIC/SA/?cmd=login&languageCd=ENG" target="_blank">Quest</Link>
+                    &nbsp;and click &quot;Class Schedule&quot;.
+                  </Typography>
+                </CardContent>
+                <CardMedia
+                  image={step1}
+                  title="Go to Class Schedule"
+                  className="step-img"
+                />
+              </Card>
+            </Grid>
+            <Grid item xs={12} md={4} lg={3}>
+              <Card raised>
+                <CardHeader title="Step 2" className="header" />
+                <CardContent>
+                  <Typography variant="body1">Choose your term, then select all and copy.</Typography>
+                </CardContent>
+                <CardMedia
+                  image={step2}
+                  title="Select All and Copy"
+                  className="step-img"
+                />
+              </Card>
+            </Grid>
+            <Grid item xs={12} md={4} lg={3}>
+              <Card raised style={{ display: 'flex', flexDirection: 'column', height: '100%' }}>
+                <CardHeader title="Step 3" className="header" />
+                <CardContent>
+                  <Box mb={2}>
+                    <Typography variant="body1">Paste into the box below.</Typography>
+                  </Box>
+                  <TextField
+                    multiline
+                    required
+                    variant="outlined"
+                    fullWidth
+                    rows={12}
+                    onChange={(e) => this.updateRawCourses(e.target.value)}
+                  />
+                </CardContent>
+                <CardActions className="stick-bottom">
+                  <Box p={1} width={1}>
+                    <Button color="primary" variant="contained" size="large" fullWidth onClick={this.showModal}>Next</Button>
+                  </Box>
+                </CardActions>
+              </Card>
+            </Grid>
+          </Grid>
+
+          <Modal
+            open={modalShow}
+            onClose={this.hideModal}
+            className="flex-container"
+            style={{ alignItems: 'center', justifyContent: 'center' }}
+            BackdropComponent={Backdrop}
+            BackdropProps={{
+              timeout: 500,
+            }}
+            closeAfterTransition
+          >
+            <Fade in={modalShow}>
+              <Paper style={{ width: 800, outline: 'none' }}>
+                <Box p={2} className="header">
+                  <Typography variant="h5">Edit my courses</Typography>
+                </Box>
+                <Grid container>
+                  <Grid item xs={12} sm>
+                    <List style={{ overflowY: 'scroll', height: 360 }}>
+                      {currentCourses.map((item) => {
+                        const { courseCode, keepable, keep } = item;
+                        return (
+                          <CourseItem
+                            key={courseCode}
+                            courseCode={courseCode}
+                            keepable={keepable}
+                            keep={keep}
+                            onDropClick={() => this.dropCourse(courseCode)}
+                          />
+                        );
+                      })}
+                    </List>
+                  </Grid>
+                  <Grid item xs={12} sm>
+                    <Box p={2}>
+                      <Autocomplete
+                        className="margin-bottom-16"
+                        id="subjectBox"
+                        options={allSubjects}
+                        renderInput={(params) => (
+                          <TextField {...params}
+                            label="Subject"
+                            variant="outlined"
+                            fullWidth
+                          />
+                        )}
+                        onChange={(_event, value) => {
+                          if (value === subjectBox) {
+                            return;
+                          }
+                          this.loadCourseNumbers(value);
+                          this.setState({
+                            subjectBox: (value || '').toUpperCase(),
+                            courseNumberBox: '',
+                          });
+                          if (value) {
+                            this.courseNumberBoxRef.current.focus();
+                          }
+                        }}
+                        value={subjectBox}
+                      />
+                      <Autocomplete
+                        className="margin-bottom-16"
+                        id="courseNumberBox"
+                        options={courseNumbers}
+                        getOptionLabel={(option) => option}
+                        renderInput={(params) => (
+                          <TextField {...params}
+                            label="Course number"
+                            variant="outlined"
+                            fullWidth
+                            inputRef={this.courseNumberBoxRef}
+                          />
+                        )}
+                        onChange={(_event, value) => {
+                          this.setState({
+                            courseNumberBox: value,
+                          });
+                        }}
+                        value={courseNumberBox}
+                      />
+                      <div className="flex-container">
+                        <Box ml="auto">
+                          <Button color="primary" variant="outlined" onClick={this.handleAddClick}>Add Course</Button>
+                        </Box>
+                      </div>
+                      <Snackbar
+                        open={courseUnavailAlertShow}
+                        onClose={this.hideCourseUnavailAlert}
+                        autoHideDuration={3000}
+                        anchorOrigin={{ vertical: 'top', horizontal: 'center' }}
+                      >
+                        <Alert severity="warning" onClose={this.hideCourseUnavailAlert}>
+                          {`${subjectBox} ${courseNumberBox}`}
+                          &nbsp;is unavailable for this term.
+                        </Alert>
+                      </Snackbar>
+                    </Box>
+                  </Grid>
+                </Grid>
+                <Divider />
+                <Box p={2}>
+                  <Button size="large" variant="contained" color="primary" fullWidth onClick={this.handleViewScheduleClick}>View Recommended Schedules</Button>
+                </Box>
+              </Paper>
+            </Fade>
+          </Modal>
+        </Box>
+      </ThemeProvider>
     );
   }
 }

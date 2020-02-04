@@ -1,43 +1,4 @@
-.App {
-  overflow: hidden;
-}
-
-.App-logo {
-  height: 40vmin;
-  pointer-events: none;
-}
-
-@media (prefers-reduced-motion: no-preference) {
-  .App-logo {
-    animation: App-logo-spin infinite 20s linear;
-  }
-}
-
-.App-header {
-  background-color: #282c34;
-  min-height: 100vh;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  font-size: calc(10px + 2vmin);
-  color: white;
-}
-
-.App-link {
-  color: #61dafb;
-}
-
-@keyframes App-logo-spin {
-  from {
-    transform: rotate(0deg);
-  }
-  to {
-    transform: rotate(360deg);
-  }
-}
-
-.Logo {
+.logo {
   display: block;
   height: 16vmin;
   margin-top: 30px;
@@ -46,34 +7,27 @@
   margin-right: auto;
 }
 
-.Card {
-  border-radius: 20px;
+.flex-container {
   display: flex;
-  width: 400px;
-  height: 490px;
 }
 
-.StepsDeck {
-  margin: auto;
-  width: 80%;
+.margin-bottom-16 {
+  margin-bottom: 16px;
 }
 
-.PasteBox {
-  resize: none;
+.stick-bottom {
+  margin-top: auto;
 }
 
-.CourseEditCard {
-  height: 400px;
+.stick-right {
+  margin-left: auto;
 }
 
-.KeepColumn {
-  text-align: center;
+.header {
+  background: #f5f5f5;
 }
 
-.VerticalMiddle {
-  vertical-align: middle;
-}
-
-.AutoCompleteInput {
-  margin: 16px;
+.step-img {
+  height: 0;
+  padding-top: 100%;
 }
