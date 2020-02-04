@@ -49,6 +49,7 @@ class WelcomePage extends React.Component {
       courseInfo: [],
       scheduleInvalidAlertShow: false,
     };
+    this.courseNumberBoxRef = React.createRef();
   }
 
   componentDidMount() {
@@ -112,8 +113,9 @@ class WelcomePage extends React.Component {
   hideModal = () => {
     this.setState({
       modalShow: false,
-      subjectBox: null,
-      courseNumberBox: null,
+      subjectBox: '',
+      courseNumberBox: '',
+      courseNumbers: [],
     });
   }
 
@@ -142,7 +144,10 @@ class WelcomePage extends React.Component {
   }
 
   loadCourseNumbers = async (subject) => {
-    if (!subject) return;
+    if (!subject) {
+      this.setState({ courseNumbers: [] });
+      return;
+    }
     const url = `https://api.uwaterloo.ca/v2/courses/${subject}.json`;
     const response = await axios.get(url, {
       params: {
@@ -356,17 +361,24 @@ class WelcomePage extends React.Component {
                         id="subjectBox"
                         options={allSubjects}
                         renderInput={(params) => (
-                          <TextField {...params} label="Subject" variant="outlined" fullWidth />
+                          <TextField {...params}
+                            label="Subject"
+                            variant="outlined"
+                            fullWidth
+                          />
                         )}
-                        onSelect={(e) => {
-                          if (e.target.value === subjectBox) {
+                        onChange={(_event, value) => {
+                          if (value === subjectBox) {
                             return;
                           }
-                          this.loadCourseNumbers(e.target.value);
+                          this.loadCourseNumbers(value);
                           this.setState({
-                            subjectBox: e.target.value.toUpperCase(),
-                            courseNumberBox: null,
+                            subjectBox: (value || '').toUpperCase(),
+                            courseNumberBox: '',
                           });
+                          if (value) {
+                            this.courseNumberBoxRef.current.focus();
+                          }
                         }}
                         value={subjectBox}
                       />
@@ -376,11 +388,18 @@ class WelcomePage extends React.Component {
                         options={courseNumbers}
                         getOptionLabel={(option) => option}
                         renderInput={(params) => (
-                          <TextField {...params} label="Course number" variant="outlined" fullWidth />
+                          <TextField {...params}
+                            label="Course number"
+                            variant="outlined"
+                            fullWidth
+                            inputRef={this.courseNumberBoxRef}
+                          />
                         )}
-                        onSelect={(e) => this.setState({
-                          courseNumberBox: e.target.value,
-                        })}
+                        onChange={(_event, value) => {
+                          this.setState({
+                            courseNumberBox: value,
+                          });
+                        }}
                         value={courseNumberBox}
                       />
                       <div className="flex-container">
