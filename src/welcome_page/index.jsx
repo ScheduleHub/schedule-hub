@@ -107,7 +107,7 @@ class WelcomePage extends React.Component {
   parseCourses = (rawCourses) => {
     const classNumbers = rawCourses.match(/^\d{4}$/gm);
     const courseNames = rawCourses.match(/[A-Z]{2,6} \d{1,3}[A-Z]? - /g).map((x) => x.substring(0, x.length - 3));
-    if (rawCourses.match(/^\d{3}$/gm).length !== classNumbers.length) {
+    if (rawCourses.match(/^\d{3}$/gm).length !== classNumbers.length || rawCourses.match(/^0\d{2}$/gm).length !== courseNames.length) {
       this.showScheduleInvalidAlert();
       return;
     }
