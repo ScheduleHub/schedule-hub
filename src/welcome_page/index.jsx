@@ -331,10 +331,11 @@ class WelcomePage extends React.Component {
                     fullWidth
                     rows={12}
                     onChange={(e) => this.handleRawCoursesInputChange(e.target.value)}
-                    inputProps={{
+                    InputProps={{
                       style: { height: '100%' },
                     }}
-                    InputProps={{
+                    // eslint-disable-next-line react/jsx-no-duplicate-props
+                    inputProps={{
                       style: { height: '100%' },
                     }}
                   />
