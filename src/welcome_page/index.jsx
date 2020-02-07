@@ -77,6 +77,7 @@ class WelcomePage extends React.Component {
         },
       });
     });
+
     const allUrl = courseNames.map((str) => {
       const [sub, cata] = str.split(' ');
       return `https://api.uwaterloo.ca/v2/courses/${sub}/${cata}/schedule.json`;
