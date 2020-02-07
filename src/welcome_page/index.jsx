@@ -1,8 +1,8 @@
 import React from 'react';
 import {
   Button, TextField, Typography, Grid, Modal, Link, List,
-  Card, CardContent, CardHeader, CardMedia, CardActions,
-  Paper, CssBaseline, Divider, Snackbar, Fade, Backdrop, createMuiTheme, ThemeProvider, Box,
+  Card, CardContent, CardHeader, CardMedia, Paper, CssBaseline,
+  Divider, Snackbar, Fade, Backdrop, createMuiTheme, ThemeProvider, Box,
 } from '@material-ui/core';
 import { Autocomplete, Alert } from '@material-ui/lab';
 import { blue } from '@material-ui/core/colors';
@@ -13,6 +13,7 @@ import { getCourseCode, formatPostData } from 'utils/courses';
 import logo from 'res/icon.svg';
 import step1 from 'res/calendar-step-1.png';
 import step2 from 'res/calendar-step-2.png';
+import _ from 'lodash';
 
 const apiKey = '4ad350333dc3859b91bcf443d14e4bf0';
 
@@ -43,10 +44,11 @@ class WelcomePage extends React.Component {
       courseNumbers: [],
       subjectBox: '',
       courseNumberBox: '',
-      courseUnavailAlertShow: false,
       rawCourses: '',
       courseInfo: [],
-      scheduleInvalidAlertShow: false,
+      snackbarOpen: false,
+      snackbarTheme: '',
+      snackbarText: '',
     };
     this.courseNumberBoxRef = React.createRef();
   }
@@ -55,7 +57,26 @@ class WelcomePage extends React.Component {
     this.loadSubjects();
   }
 
-  loadCourseInfo = async (courseNames) => {
+  isValidSchedule = (courseInfo, classNumbers) => {
+    const completeClassNumbers = _.flatten(courseInfo).map((obj) => obj.class_number);
+    return classNumbers.every((number) => completeClassNumbers.includes(number));
+  }
+
+  loadCourseInfo = async (courseNames, classNumbers) => {
+    const timeout = 10000;
+    this.setState({ fullPageOverlayOpen: true });
+    const instance = axios.create({
+      baseURL: 'https://api.uwaterloo.ca/v2/courses',
+      timeout,
+    });
+    const promises = courseNames.map((str) => {
+      const [sub, cata] = str.split(' ');
+      return instance.get(`/${sub}/${cata}/schedule.json`, {
+        params: {
+          key: apiKey,
+        },
+      });
+    });
     const allUrl = courseNames.map((str) => {
       const [sub, cata] = str.split(' ');
       return `https://api.uwaterloo.ca/v2/courses/${sub}/${cata}/schedule.json`;
@@ -66,43 +87,50 @@ class WelcomePage extends React.Component {
       },
     }))).then((values) => {
       const courseInfo = values.map((value) => value.data.data);
-      this.setState({ courseInfo });
+      if (this.isValidSchedule(courseInfo, classNumbers)) {
+        this.setState({
+          courseInfo,
+          currentCourses: courseNames.map(
+            (item) => ({ courseCode: item, keepable: true, keep: true }),
+          ),
+          currentClasses: classNumbers,
+          modalShow: true,
+        });
+      } else {
+        this.showScheduleInvalidAlert();
+        console.log('original courses and courses from course code do not match');
+      }
     });
   }
 
-  parseCourses = (rawCourses) => {
+  parseCourses = async (rawCourses) => {
     const classNumbers = rawCourses.match(/^\d{4}$/gm);
     const courseNames = rawCourses.match(/[A-Z]{2,6} \d{1,3}[A-Z]? - /g).map((x) => x.substring(0, x.length - 3));
-
-    this.setState({
-      currentCourses: courseNames.map(
-        (item) => ({ courseCode: item, keepable: true, keep: true }),
-      ),
-      currentClasses: classNumbers.map((item) => parseInt(item, 10)),
-    });
-    this.loadCourseInfo(courseNames);
+    if (rawCourses.match(/^\d{3}$/gm).length !== classNumbers.length) {
+      console.log("number of course numbers and catlog numbers doesn't match");
+      this.showScheduleInvalidAlert();
+      return;
+    }
+    this.loadCourseInfo(courseNames, classNumbers.map((item) => parseInt(item, 10)));
   }
 
-  showScheduleInvalidAlert = () => this.setState({ scheduleInvalidAlertShow: true });
+  showScheduleInvalidAlert = () => this.showSnackbar('warning', 'Your course info cannot be read.\nPlease make sure it\'s correct and try again.');
 
-  hideScheduleInvalidAlert = (event, reason) => {
+  showCourseUnavailAlert = () => {
+    const { subjectBox, courseNumberBox } = this.state;
+    this.showSnackbar('warning', `${subjectBox} ${courseNumberBox} is unavailable for this term.`);
+  }
+
+  hideSnackbar = (event, reason) => {
     if (reason === 'clickaway') {
       return;
     }
-    this.setState({ scheduleInvalidAlertShow: false });
+    this.setState({ snackbarOpen: false });
   }
 
-  showCourseUnavailAlert = () => this.setState({ courseUnavailAlertShow: true });
-
-  hideCourseUnavailAlert = () => this.setState({ courseUnavailAlertShow: false });
-
-  showModal = () => {
-    const { rawCourses } = this.state;
+  showModal = (rawCourses) => {
     try {
       this.parseCourses(rawCourses);
-      this.setState({
-        modalShow: true,
-      });
     } catch (error) {
       this.showScheduleInvalidAlert();
     }
@@ -114,7 +142,19 @@ class WelcomePage extends React.Component {
       subjectBox: '',
       courseNumberBox: '',
       courseNumbers: [],
+      rawCourses: '',
     });
+  }
+
+  showSnackbar = (snackbarTheme, snackbarText) => {
+    this.setState({ snackbarTheme, snackbarText, snackbarOpen: true });
+  }
+
+  hideSnackbar = (event, reason) => {
+    if (reason === 'clickaway') {
+      return;
+    }
+    this.setState({ snackbarOpen: false });
   }
 
   dropCourse = (courseCode) => {
@@ -158,7 +198,7 @@ class WelcomePage extends React.Component {
     });
   }
 
-  updateRawCourses = (rawCourses) => {
+  handleRawCoursesInputChange = (rawCourses) => {
     this.setState({ rawCourses });
   }
 
@@ -205,10 +245,17 @@ class WelcomePage extends React.Component {
     console.log(data);
   }
 
+  handlePaste = (pasteText) => {
+    this.hideSnackbar();
+    this.setState({ rawCourses: pasteText });
+    this.showModal(pasteText);
+  }
+
   render() {
     const {
       modalShow, currentCourses, allSubjects, courseNumbers,
-      subjectBox, courseNumberBox, scheduleInvalidAlertShow, courseUnavailAlertShow,
+      subjectBox, courseNumberBox,
+      rawCourses, snackbarTheme, snackbarOpen, snackbarText,
     } = this.state;
 
     return (
@@ -216,13 +263,12 @@ class WelcomePage extends React.Component {
         <Box p={2}>
           <CssBaseline />
           <Snackbar
-            open={scheduleInvalidAlertShow}
-            onClose={this.hideScheduleInvalidAlert}
-            autoHideDuration={3000}
+            open={snackbarOpen}
+            onClose={this.hideSnackbar}
             anchorOrigin={{ vertical: 'top', horizontal: 'center' }}
           >
-            <Alert severity="warning" onClose={this.hideScheduleInvalidAlert}>
-              Your course info cannot be read. Please try again.
+            <Alert severity={snackbarTheme} onClose={this.hideSnackbar}>
+              {snackbarText}
             </Alert>
           </Snackbar>
           <img src={logo} alt="Logo" className="logo" />
@@ -261,24 +307,31 @@ class WelcomePage extends React.Component {
             <Grid item xs={12} md={4} lg={3}>
               <Card raised style={{ display: 'flex', flexDirection: 'column', height: '100%' }}>
                 <CardHeader title="Step 3" className="header" />
-                <CardContent>
+                <CardContent style={{
+                  display: 'flex', flexDirection: 'column', flexGrow: 1, paddingBottom: '16px',
+                }}
+                >
                   <Box mb={2}>
                     <Typography variant="body1">Paste into the box below.</Typography>
                   </Box>
                   <TextField
+                    style={{ flexGrow: 1 }}
+                    value={rawCourses}
+                    onPaste={(e) => this.handlePaste(e.clipboardData.getData('text/plain'))}
                     multiline
                     required
                     variant="outlined"
                     fullWidth
                     rows={12}
-                    onChange={(e) => this.updateRawCourses(e.target.value)}
+                    onChange={(e) => this.handleRawCoursesInputChange(e.target.value)}
+                    inputProps={{
+                      style: { height: '100%' },
+                    }}
+                    InputProps={{
+                      style: { height: '100%' },
+                    }}
                   />
                 </CardContent>
-                <CardActions className="stick-bottom">
-                  <Box p={1} width={1}>
-                    <Button color="primary" variant="contained" size="large" fullWidth onClick={this.showModal}>Next</Button>
-                  </Box>
-                </CardActions>
               </Card>
             </Grid>
           </Grid>
@@ -373,17 +426,6 @@ class WelcomePage extends React.Component {
                           <Button color="primary" variant="outlined" onClick={this.handleAddClick}>Add Course</Button>
                         </Box>
                       </div>
-                      <Snackbar
-                        open={courseUnavailAlertShow}
-                        onClose={this.hideCourseUnavailAlert}
-                        autoHideDuration={3000}
-                        anchorOrigin={{ vertical: 'top', horizontal: 'center' }}
-                      >
-                        <Alert severity="warning" onClose={this.hideCourseUnavailAlert}>
-                          {`${subjectBox} ${courseNumberBox}`}
-                          &nbsp;is unavailable for this term.
-                        </Alert>
-                      </Snackbar>
                     </Box>
                   </Grid>
                 </Grid>
