@@ -2,7 +2,8 @@ import React from 'react';
 import {
   Button, TextField, Typography, Grid, Modal, Link, List,
   Card, CardContent, CardHeader, CardMedia, Paper, CssBaseline,
-  Divider, Snackbar, Fade, Backdrop, createMuiTheme, ThemeProvider, Box,
+  Divider, Snackbar, Fade, Backdrop, createMuiTheme, ThemeProvider,
+  Box, CircularProgress,
 } from '@material-ui/core';
 import { Autocomplete, Alert } from '@material-ui/lab';
 import { blue } from '@material-ui/core/colors';
@@ -49,6 +50,7 @@ class WelcomePage extends React.Component {
       snackbarOpen: false,
       snackbarTheme: '',
       snackbarText: '',
+      fullPageOverlayOpen: false,
     };
     this.courseNumberBoxRef = React.createRef();
   }
@@ -63,8 +65,7 @@ class WelcomePage extends React.Component {
   }
 
   loadCourseInfo = async (courseNames, classNumbers) => {
-    const timeout = 10000;
-    this.setState({ fullPageOverlayOpen: true });
+    const timeout = 6000;
     const instance = axios.create({
       baseURL: 'https://api.uwaterloo.ca/v2/courses',
       timeout,
@@ -77,16 +78,8 @@ class WelcomePage extends React.Component {
         },
       });
     });
-
-    const allUrl = courseNames.map((str) => {
-      const [sub, cata] = str.split(' ');
-      return `https://api.uwaterloo.ca/v2/courses/${sub}/${cata}/schedule.json`;
-    });
-    Promise.all(allUrl.map((url) => axios.get(url, {
-      params: {
-        key: apiKey,
-      },
-    }))).then((values) => {
+    this.setState({ fullPageOverlayOpen: true });
+    axios.all(promises).then((values) => {
       const courseInfo = values.map((value) => value.data.data);
       if (this.isValidSchedule(courseInfo, classNumbers)) {
         this.setState({
@@ -99,16 +92,22 @@ class WelcomePage extends React.Component {
         });
       } else {
         this.showScheduleInvalidAlert();
-        console.log('original courses and courses from course code do not match');
       }
+    }).catch((error) => {
+      if (error.message === `timeout of ${timeout}ms exceeded`) {
+        this.showSnackbar('error', 'Network Timeout');
+      } else {
+        this.showSnackbar('error', error.message);
+      }
+    }).finally(() => {
+      this.setState({ fullPageOverlayOpen: false });
     });
   }
 
-  parseCourses = async (rawCourses) => {
+  parseCourses = (rawCourses) => {
     const classNumbers = rawCourses.match(/^\d{4}$/gm);
     const courseNames = rawCourses.match(/[A-Z]{2,6} \d{1,3}[A-Z]? - /g).map((x) => x.substring(0, x.length - 3));
     if (rawCourses.match(/^\d{3}$/gm).length !== classNumbers.length) {
-      console.log("number of course numbers and catlog numbers doesn't match");
       this.showScheduleInvalidAlert();
       return;
     }
@@ -148,7 +147,9 @@ class WelcomePage extends React.Component {
   }
 
   showSnackbar = (snackbarTheme, snackbarText) => {
-    this.setState({ snackbarTheme, snackbarText, snackbarOpen: true });
+    this.setState({
+      snackbarTheme, snackbarText, snackbarOpen: true, rawCourses: '',
+    });
   }
 
   hideSnackbar = (event, reason) => {
@@ -247,15 +248,19 @@ class WelcomePage extends React.Component {
   }
 
   handlePaste = (pasteText) => {
-    this.hideSnackbar();
-    this.setState({ rawCourses: pasteText });
-    this.showModal(pasteText);
+    try {
+      this.hideSnackbar();
+      this.setState({ rawCourses: pasteText });
+      this.showModal(pasteText);
+    } catch (error) {
+      this.showSnackbar('error', error.message);
+    }
   }
 
   render() {
     const {
       modalShow, currentCourses, allSubjects, courseNumbers,
-      subjectBox, courseNumberBox,
+      subjectBox, courseNumberBox, fullPageOverlayOpen,
       rawCourses, snackbarTheme, snackbarOpen, snackbarText,
     } = this.state;
 
@@ -267,6 +272,7 @@ class WelcomePage extends React.Component {
             open={snackbarOpen}
             onClose={this.hideSnackbar}
             anchorOrigin={{ vertical: 'top', horizontal: 'center' }}
+            autoHideDuration={3000}
           >
             <Alert severity={snackbarTheme} onClose={this.hideSnackbar}>
               {snackbarText}
@@ -438,6 +444,15 @@ class WelcomePage extends React.Component {
             </Fade>
           </Modal>
         </Box>
+        <Backdrop
+          style={{
+            zIndex: theme.zIndex.drawer + 1,
+            color: '#fff',
+          }}
+          open={fullPageOverlayOpen}
+        >
+          <CircularProgress color="inherit" />
+        </Backdrop>
       </ThemeProvider>
     );
   }
