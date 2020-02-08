@@ -5,6 +5,9 @@
     "node": true
   },
   "extends": "airbnb",
+  "rules": {
+    "no-unused-vars": ["error", { "argsIgnorePattern": "^_" }]
+  },
   "settings": {
     "import/resolver": {
       "node": {
