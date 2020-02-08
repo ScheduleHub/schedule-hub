@@ -3,7 +3,7 @@ import {
   Button, TextField, Typography, Grid, Modal, Link, List,
   Card, CardContent, CardHeader, CardMedia, Paper, CssBaseline,
   Divider, Snackbar, Fade, Backdrop, createMuiTheme, ThemeProvider,
-  Box, CircularProgress, Container, makeStyles,
+  Box, CircularProgress, Container, makeStyles, Hidden,
 } from '@material-ui/core';
 import { Autocomplete, Alert } from '@material-ui/lab';
 import { blue } from '@material-ui/core/colors';
@@ -18,9 +18,26 @@ import _ from 'lodash';
 
 const apiKey = '4ad350333dc3859b91bcf443d14e4bf0';
 
-const useStyles = makeStyles((_theme) => ({
-  flexContainer: { display: 'flex', flexDirection: 'column' },
+const useStyles = makeStyles((theme) => ({
+  backdrop: {
+    zIndex: theme.zIndex.drawer + 1,
+    color: '#ffffff',
+  },
+  currentCoursesList: {
+    overflowY: 'scroll',
+    height: 360,
+  },
+  fillRemainingHeight: { flexGrow: 1 },
+  flexContainer: {
+    display: 'flex',
+    flexDirection: 'column',
+  },
   fullHeight: { height: '100%' },
+  header: { background: '#f5f5f5' },
+  marginLeft: { marginLeft: theme.spacing(2) },
+  stepImage: { height: 0, paddingTop: '100%' },
+  stickBottom: { marginTop: 'auto' },
+  stickRight: { marginLeft: 'auto' },
 }));
 
 const theme = createMuiTheme({
@@ -52,13 +69,14 @@ function WelcomePage() {
 
   // UI states
   const [editCourseModalOpen, setEditCourseModalOpen] = useState(false); // modalShow
-  const [fullPageLoadingOpen, setFullPageLoadingOpen] = useState(false);
+  const [fullPageLoading, setFullPageLoading] = useState(false);
   const [snackbarOpen, setSnackbarOpen] = useState(false);
   const [snackbarSeverity, setSnackbarSeverity] = useState(''); // snackbarTheme
   const [snackbarText, setSnackbarText] = useState('');
   const [scheduleImportInput, setScheduleImportInput] = useState(''); // rawCourses
   const [addCourseSubjectInput, setAddCourseSubjectInput] = useState(''); // subjectBox
   const [addCourseNumberInput, setAddCourseNumberInput] = useState(''); // courseNumberBox
+  const [addCourseLoading, setAddCourseLoading] = useState(false);
 
   // Refs
   const addCourseNumberInputRef = useRef(); // courseNumberBoxRef
@@ -108,7 +126,7 @@ function WelcomePage() {
     );
   };
 
-  const showCourseUnavailAlert = () => {
+  const showSnackbarForAddCourse = () => {
     showSnackbar(
       'warning',
       `${addCourseSubjectInput} ${addCourseNumberInput} is unavailable for this term.`,
@@ -129,7 +147,7 @@ function WelcomePage() {
         },
       });
     });
-    setFullPageLoadingOpen(true);
+    setFullPageLoading(true);
     axios.all(promises).then((values) => {
       const courseInfo = values.map((value) => value.data.data);
       if (isValidSchedule(courseInfo, classNumbers)) {
@@ -150,7 +168,7 @@ function WelcomePage() {
       }
     }).finally(() => {
       setScheduleImportInput('');
-      setFullPageLoadingOpen(false);
+      setFullPageLoading(false);
     });
   };
 
@@ -206,11 +224,12 @@ function WelcomePage() {
     if (!addCourseSubjectInput || !addCourseNumberInput) {
       return;
     }
-
+    setAddCourseLoading(true);
     const courseCode = `${addCourseSubjectInput} ${addCourseNumberInput}`;
     const newCurrentCourses = currentCourses.slice();
     if (newCurrentCourses.some((item) => courseCode === item.courseCode)) {
       showSnackbar('info', `${courseCode} is already in your schedule.`);
+      setAddCourseLoading(false);
       return;
     }
     const url = `https://api.uwaterloo.ca/v2/courses/${addCourseSubjectInput}/${addCourseNumberInput}/schedule.json`;
@@ -220,7 +239,8 @@ function WelcomePage() {
       },
     });
     if (response.data.meta.status !== 200) {
-      showCourseUnavailAlert();
+      showSnackbar('warning', `${courseCode} is unavailable for this term.`);
+      setAddCourseLoading(false);
       return;
     }
 
@@ -233,6 +253,7 @@ function WelcomePage() {
     newCourseInfo.push(response.data.data);
     setCurrentCourses(newCurrentCourses);
     setCoursesInfo(newCourseInfo);
+    setAddCourseLoading(false);
   };
 
   const handleViewScheduleClick = () => {
@@ -271,10 +292,10 @@ function WelcomePage() {
           {/* TODO: change spacing to 6 for md and higher */}
           <Grid item xs={12} sm={10} md>
             <Card raised>
-              <CardHeader title="Step 1" className="header" />
+              <CardHeader title="Step 1" className={classes.header} />
               <CardContent>
                 <Typography variant="body1">
-                      Go to&nbsp;
+                  Go to&nbsp;
                   <Link href="https://quest.pecs.uwaterloo.ca/psp/SS/ACADEMIC/SA/?cmd=login&languageCd=ENG" target="_blank">Quest</Link>
                   , click &quot;Class Schedule&quot;.
                 </Typography>
@@ -282,35 +303,32 @@ function WelcomePage() {
               <CardMedia
                 image={step1}
                 title="Go to Class Schedule"
-                className="step-img"
+                className={classes.stepImage}
               />
             </Card>
           </Grid>
           <Grid item xs={12} sm={10} md>
             <Card className={`${classes.flexContainer} ${classes.fullHeight}`} raised>
-              <CardHeader title="Step 2" className="header" />
+              <CardHeader title="Step 2" className={classes.header} />
               <CardContent>
                 <Typography variant="body1">Select all and copy.</Typography>
               </CardContent>
               <CardMedia
                 image={step2}
                 title="Select All and Copy"
-                className="step-img stick-bottom"
+                className={`${classes.stepImage} ${classes.stickBottom}`}
               />
             </Card>
           </Grid>
           <Grid item xs={12} sm={10} md>
             <Card className={`${classes.flexContainer} ${classes.fullHeight}`} raised>
-              <CardHeader title="Step 3" className="header" />
-              <CardContent
-                className={classes.flexContainer}
-                style={{ flexGrow: 1, paddingBottom: '16px' }}
-              >
+              <CardHeader title="Step 3" className={classes.header} />
+              <CardContent className={`${classes.flexContainer} ${classes.fillRemainingHeight}`}>
                 <Box mb={2}>
                   <Typography variant="body1">Paste into the box below.</Typography>
                 </Box>
                 <TextField
-                  style={{ flexGrow: 1 }}
+                  className={classes.fillRemainingHeight}
                   value={scheduleImportInput}
                   onPaste={(e) => handlePaste(e.clipboardData.getData('text/plain'))}
                   multiline
@@ -318,11 +336,9 @@ function WelcomePage() {
                   variant="outlined"
                   fullWidth
                   rows={12}
-                  // onChange={(e) => handleRawCoursesInputChange(e.target.value)}
                   InputProps={{
                     className: classes.fullHeight,
                   }}
-                  // eslint-disable-next-line react/jsx-no-duplicate-props
                   inputProps={{
                     className: classes.fullHeight,
                   }}
@@ -346,12 +362,12 @@ function WelcomePage() {
       >
         <Fade in={editCourseModalOpen}>
           <Paper style={{ width: 800, outline: 'none' }}>
-            <Box p={2} className="header">
+            <Box p={2} className={classes.header}>
               <Typography variant="h5">Edit my courses</Typography>
             </Box>
             <Grid container>
               <Grid item xs={12} sm>
-                <List style={{ overflowY: 'scroll', height: 360 }}>
+                <List className={classes.currentCoursesList}>
                   {currentCourses.map((item) => {
                     const { courseCode, keepable, keep } = item;
                     return (
@@ -365,16 +381,19 @@ function WelcomePage() {
                     );
                   })}
                 </List>
+                <Hidden smUp>
+                  <Divider />
+                </Hidden>
               </Grid>
               <Grid item xs={12} sm>
-                <Box p={2}>
+                <Box p={2} display="flex" flexDirection="column">
                   <Autocomplete
                     className="margin-bottom-16"
                     id="subjectBox"
                     options={availSubjects}
                     renderInput={(params) => (
                       <TextField
-                            // eslint-disable-next-line react/jsx-props-no-spreading
+                        // eslint-disable-next-line react/jsx-props-no-spreading
                         {...params}
                         label="Subject"
                         variant="outlined"
@@ -414,11 +433,18 @@ function WelcomePage() {
                     }}
                     value={addCourseNumberInput}
                   />
-                  <div className="flex-container">
-                    <Box ml="auto">
-                      <Button color="primary" variant="outlined" onClick={handleAddClick}>Add Course</Button>
-                    </Box>
-                  </div>
+                  <Box mx={0} display="flex" alignItems="center" justifyContent="flex-end">
+                    {addCourseLoading && <CircularProgress size={36 / Math.sqrt(2)} />}
+                    <Button
+                      color="primary"
+                      variant="outlined"
+                      onClick={handleAddClick}
+                      className={classes.marginLeft}
+                      disabled={addCourseLoading}
+                    >
+                      Add Course
+                    </Button>
+                  </Box>
                 </Box>
               </Grid>
             </Grid>
@@ -430,6 +456,7 @@ function WelcomePage() {
                 color="primary"
                 fullWidth
                 onClick={handleViewScheduleClick}
+                disabled={addCourseLoading}
               >
                 View Recommended Schedules
               </Button>
@@ -438,11 +465,8 @@ function WelcomePage() {
         </Fade>
       </Modal>
       <Backdrop
-        style={{
-          zIndex: theme.zIndex.drawer + 1,
-          color: '#fff',
-        }}
-        open={fullPageLoadingOpen}
+        className={classes.backdrop}
+        open={fullPageLoading}
       >
         <CircularProgress color="inherit" />
       </Backdrop>

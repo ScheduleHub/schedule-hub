@@ -6,7 +6,8 @@
   },
   "extends": "airbnb",
   "rules": {
-    "no-unused-vars": ["error", { "argsIgnorePattern": "^_" }]
+    "no-unused-vars": ["error", { "argsIgnorePattern": "^_" }],
+    "react/jsx-no-duplicate-props": ["error", { "ignoreCase": false }]
   },
   "settings": {
     "import/resolver": {
