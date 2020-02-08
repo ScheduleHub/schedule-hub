@@ -3,7 +3,7 @@ import {
   Button, TextField, Typography, Grid, Modal, Link, List,
   Card, CardContent, CardHeader, CardMedia, Paper, CssBaseline,
   Divider, Snackbar, Fade, Backdrop, createMuiTheme, ThemeProvider,
-  Box, CircularProgress,
+  Box, CircularProgress, Container,
 } from '@material-ui/core';
 import { Autocomplete, Alert } from '@material-ui/lab';
 import { blue } from '@material-ui/core/colors';
@@ -19,6 +19,15 @@ import _ from 'lodash';
 const apiKey = '4ad350333dc3859b91bcf443d14e4bf0';
 
 const theme = createMuiTheme({
+  breakpoints: {
+    values: {
+      xs: 0,
+      sm: 600,
+      md: 1152,
+      lg: 1440,
+      xl: 1920,
+    },
+  },
   palette: {
     primary: {
       main: blue[500],
@@ -266,29 +275,30 @@ class WelcomePage extends React.Component {
 
     return (
       <ThemeProvider theme={theme}>
-        <Box p={2}>
-          <CssBaseline />
-          <Snackbar
-            open={snackbarOpen}
-            onClose={this.hideSnackbar}
-            anchorOrigin={{ vertical: 'top', horizontal: 'center' }}
-            autoHideDuration={3000}
-          >
-            <Alert severity={snackbarTheme} onClose={this.hideSnackbar}>
-              {snackbarText}
-            </Alert>
-          </Snackbar>
-          <img src={logo} alt="Logo" className="logo" />
+        <CssBaseline />
+        <Snackbar
+          open={snackbarOpen}
+          onClose={this.hideSnackbar}
+          anchorOrigin={{ vertical: 'top', horizontal: 'center' }}
+          autoHideDuration={3000}
+        >
+          <Alert severity={snackbarTheme} onClose={this.hideSnackbar}>
+            {snackbarText}
+          </Alert>
+        </Snackbar>
+        <img src={logo} alt="Logo" className="logo" />
 
-          <Grid container justify="center" spacing={6}>
-            <Grid item xs={12} md={4} lg={3}>
+        <Container maxWidth="lg">
+          <Grid container justify="center" spacing={4}>
+            {/* TODO: change spacing to 6 for md and higher */}
+            <Grid item xs={12} md>
               <Card className="card" raised>
                 <CardHeader title="Step 1" className="header" />
                 <CardContent>
                   <Typography variant="body1">
-                    Go to&nbsp;
+                      Go to&nbsp;
                     <Link href="https://quest.pecs.uwaterloo.ca/psp/SS/ACADEMIC/SA/?cmd=login&languageCd=ENG" target="_blank">Quest</Link>
-                    &nbsp;and click &quot;Class Schedule&quot;.
+                      &nbsp;and click &quot;Class Schedule&quot;.
                   </Typography>
                 </CardContent>
                 <CardMedia
@@ -298,8 +308,8 @@ class WelcomePage extends React.Component {
                 />
               </Card>
             </Grid>
-            <Grid item xs={12} md={4} lg={3}>
-              <Card className="card" raised>
+            <Grid item xs={12} md>
+              <Card className="card" raised style={{ display: 'flex', flexDirection: 'column', height: '100%' }}>
                 <CardHeader title="Step 2" className="header" />
                 <CardContent>
                   <Typography variant="body1">Choose your term, select all and copy.</Typography>
@@ -307,11 +317,11 @@ class WelcomePage extends React.Component {
                 <CardMedia
                   image={step2}
                   title="Select All and Copy"
-                  className="step-img"
+                  className="step-img stick-bottom"
                 />
               </Card>
             </Grid>
-            <Grid item xs={12} md={4} lg={3}>
+            <Grid item xs={12} md>
               <Card raised style={{ display: 'flex', flexDirection: 'column', height: '100%' }}>
                 <CardHeader title="Step 3" className="header" />
                 <CardContent style={{
@@ -334,7 +344,7 @@ class WelcomePage extends React.Component {
                     InputProps={{
                       style: { height: '100%' },
                     }}
-                    // eslint-disable-next-line react/jsx-no-duplicate-props
+                      // eslint-disable-next-line react/jsx-no-duplicate-props
                     inputProps={{
                       style: { height: '100%' },
                     }}
@@ -343,108 +353,108 @@ class WelcomePage extends React.Component {
               </Card>
             </Grid>
           </Grid>
+        </Container>
 
-          <Modal
-            open={modalShow}
-            onClose={this.hideModal}
-            className="flex-container"
-            style={{ alignItems: 'center', justifyContent: 'center' }}
-            BackdropComponent={Backdrop}
-            BackdropProps={{
-              timeout: 500,
-            }}
-            closeAfterTransition
-          >
-            <Fade in={modalShow}>
-              <Paper style={{ width: 800, outline: 'none' }}>
-                <Box p={2} className="header">
-                  <Typography variant="h5">Edit my courses</Typography>
-                </Box>
-                <Grid container>
-                  <Grid item xs={12} sm>
-                    <List style={{ overflowY: 'scroll', height: 360 }}>
-                      {currentCourses.map((item) => {
-                        const { courseCode, keepable, keep } = item;
-                        return (
-                          <CourseItem
-                            key={courseCode}
-                            courseCode={courseCode}
-                            keepable={keepable}
-                            keep={keep}
-                            onDropClick={() => this.dropCourse(courseCode)}
-                          />
-                        );
-                      })}
-                    </List>
-                  </Grid>
-                  <Grid item xs={12} sm>
-                    <Box p={2}>
-                      <Autocomplete
-                        className="margin-bottom-16"
-                        id="subjectBox"
-                        options={allSubjects}
-                        renderInput={(params) => (
-                          <TextField
-                            // eslint-disable-next-line react/jsx-props-no-spreading
-                            {...params}
-                            label="Subject"
-                            variant="outlined"
-                            fullWidth
-                          />
-                        )}
-                        onChange={(_event, value) => {
-                          if (value === subjectBox) {
-                            return;
-                          }
-                          this.loadCourseNumbers(value);
-                          this.setState({
-                            subjectBox: (value || '').toUpperCase(),
-                            courseNumberBox: '',
-                          });
-                          if (value) {
-                            this.courseNumberBoxRef.current.focus();
-                          }
-                        }}
-                        value={subjectBox}
-                      />
-                      <Autocomplete
-                        className="margin-bottom-16"
-                        id="courseNumberBox"
-                        options={courseNumbers}
-                        getOptionLabel={(option) => option}
-                        renderInput={(params) => (
-                          <TextField
-                            // eslint-disable-next-line react/jsx-props-no-spreading
-                            {...params}
-                            label="Course number"
-                            variant="outlined"
-                            fullWidth
-                            inputRef={this.courseNumberBoxRef}
-                          />
-                        )}
-                        onChange={(_event, value) => {
-                          this.setState({
-                            courseNumberBox: value,
-                          });
-                        }}
-                        value={courseNumberBox}
-                      />
-                      <div className="flex-container">
-                        <Box ml="auto">
-                          <Button color="primary" variant="outlined" onClick={this.handleAddClick}>Add Course</Button>
-                        </Box>
-                      </div>
-                    </Box>
-                  </Grid>
+        <Modal
+          open={modalShow}
+          onClose={this.hideModal}
+          className="flex-container"
+          style={{ alignItems: 'center', justifyContent: 'center' }}
+          BackdropComponent={Backdrop}
+          BackdropProps={{
+            timeout: 500,
+          }}
+          closeAfterTransition
+        >
+          <Fade in={modalShow}>
+            <Paper style={{ width: 800, outline: 'none' }}>
+              <Box p={2} className="header">
+                <Typography variant="h5">Edit my courses</Typography>
+              </Box>
+              <Grid container>
+                <Grid item xs={12} sm>
+                  <List style={{ overflowY: 'scroll', height: 360 }}>
+                    {currentCourses.map((item) => {
+                      const { courseCode, keepable, keep } = item;
+                      return (
+                        <CourseItem
+                          key={courseCode}
+                          courseCode={courseCode}
+                          keepable={keepable}
+                          keep={keep}
+                          onDropClick={() => this.dropCourse(courseCode)}
+                        />
+                      );
+                    })}
+                  </List>
                 </Grid>
-                <Divider />
-                <Box p={2}>
-                  <Button size="large" variant="contained" color="primary" fullWidth onClick={this.handleViewScheduleClick}>View Recommended Schedules</Button>
-                </Box>
-              </Paper>
-            </Fade>
-          </Modal>
-        </Box>
+                <Grid item xs={12} sm>
+                  <Box p={2}>
+                    <Autocomplete
+                      className="margin-bottom-16"
+                      id="subjectBox"
+                      options={allSubjects}
+                      renderInput={(params) => (
+                        <TextField
+                            // eslint-disable-next-line react/jsx-props-no-spreading
+                          {...params}
+                          label="Subject"
+                          variant="outlined"
+                          fullWidth
+                        />
+                      )}
+                      onChange={(_event, value) => {
+                        if (value === subjectBox) {
+                          return;
+                        }
+                        this.loadCourseNumbers(value);
+                        this.setState({
+                          subjectBox: (value || '').toUpperCase(),
+                          courseNumberBox: '',
+                        });
+                        if (value) {
+                          this.courseNumberBoxRef.current.focus();
+                        }
+                      }}
+                      value={subjectBox}
+                    />
+                    <Autocomplete
+                      className="margin-bottom-16"
+                      id="courseNumberBox"
+                      options={courseNumbers}
+                      getOptionLabel={(option) => option}
+                      renderInput={(params) => (
+                        <TextField
+                            // eslint-disable-next-line react/jsx-props-no-spreading
+                          {...params}
+                          label="Course number"
+                          variant="outlined"
+                          fullWidth
+                          inputRef={this.courseNumberBoxRef}
+                        />
+                      )}
+                      onChange={(_event, value) => {
+                        this.setState({
+                          courseNumberBox: value,
+                        });
+                      }}
+                      value={courseNumberBox}
+                    />
+                    <div className="flex-container">
+                      <Box ml="auto">
+                        <Button color="primary" variant="outlined" onClick={this.handleAddClick}>Add Course</Button>
+                      </Box>
+                    </div>
+                  </Box>
+                </Grid>
+              </Grid>
+              <Divider />
+              <Box p={2}>
+                <Button size="large" variant="contained" color="primary" fullWidth onClick={this.handleViewScheduleClick}>View Recommended Schedules</Button>
+              </Box>
+            </Paper>
+          </Fade>
+        </Modal>
         <Backdrop
           style={{
             zIndex: theme.zIndex.drawer + 1,
