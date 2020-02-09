@@ -20,7 +20,7 @@ import _ from 'lodash';
  * @property {ClassDate} date
  * @property {{building: string, room: string}} location
  * @property {string[]} instructors
-*/
+ */
 
 /**
  * @typedef {Object} ClassDate
@@ -37,9 +37,7 @@ import _ from 'lodash';
  * @param {ClassInfo} classInfo1 the ClassInfo object to compare.
  * @param {ClassInfo} classInfo2 the other ClassInfo object to compare.
  */
-const areAssociated = (classInfo1, classInfo2) => (
-  classInfo1.associated_class === classInfo2.associated_class
-);
+const areAssociated = (classInfo1, classInfo2) => classInfo1.associated_class === classInfo2.associated_class;
 
 /**
  * Returns the course code of a class.
@@ -108,11 +106,11 @@ const formatPostData = (currentCourses, currentClasses, courseInfo) => {
     const other = course.slice(1);
     const rearranged = primary.map((primarySection) => {
       const allowedComponents = other.map((component) => {
-        let allowedSections = component.filter(
-          (section) => areAssociated(primarySection, section),
-        );
+        let allowedSections = component.filter((section) => areAssociated(primarySection, section));
         if (_.isEmpty(allowedSections)) {
-          allowedSections = component.filter((section) => section.associated_class === 99);
+          allowedSections = component.filter(
+            (section) => section.associated_class === 99,
+          );
         }
         return _.map(allowedSections, 'class_number');
       });
@@ -127,8 +125,15 @@ const formatPostData = (currentCourses, currentClasses, courseInfo) => {
   };
 };
 
+const prepend = (i, lol) => lol.map((lst) => [i].concat(lst));
+
+const permHelper = (lol) => (!lol.length
+  ? [[]] : lol[0].map((x) => prepend(x, permHelper(lol.slice(1)))).flat());
+
+const perm = (fc) => permHelper(
+  fc.map((course) => course.map((oneCourseCombo) => perm(oneCourseCombo)).flat()),
+).map((x) => x.flat());
+
 export {
-  areAssociated,
-  getCourseCode,
-  formatPostData,
+  areAssociated, getCourseCode, formatPostData, perm,
 };
