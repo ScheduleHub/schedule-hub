@@ -27,6 +27,15 @@ const useStyles = makeStyles((theme) => ({
     overflowY: 'scroll',
     height: 360,
   },
+  editCourseModal: {
+    alignItems: 'center',
+    display: 'flex',
+    justifyContent: 'center',
+  },
+  editCoursePaper: {
+    outline: 'none',
+    width: 800,
+  },
   fillRemainingHeight: { flexGrow: 1 },
   flexContainer: {
     display: 'flex',
@@ -352,8 +361,7 @@ function WelcomePage() {
       <Modal
         open={editCourseModalOpen}
         onClose={closeEditCourseModal}
-        className="flex-container"
-        style={{ alignItems: 'center', justifyContent: 'center' }}
+        className={classes.editCourseModal}
         BackdropComponent={Backdrop}
         BackdropProps={{
           timeout: 500,
@@ -361,7 +369,7 @@ function WelcomePage() {
         closeAfterTransition
       >
         <Fade in={editCourseModalOpen}>
-          <Paper style={{ width: 800, outline: 'none' }}>
+          <Paper className={classes.editCoursePaper}>
             <Box p={2} className={classes.header}>
               <Typography variant="h5">Edit my courses</Typography>
             </Box>
