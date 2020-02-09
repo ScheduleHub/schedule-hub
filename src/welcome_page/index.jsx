@@ -9,7 +9,7 @@ import { Autocomplete, Alert, AlertTitle } from '@material-ui/lab';
 import { blue } from '@material-ui/core/colors';
 import axios from 'axios';
 import CourseItem from 'components/CourseItem';
-import { getCourseCode, formatPostData, isOnline } from 'utils/courses';
+import { getCourseCode, formatPostData, isOnline, perm } from 'utils/courses';
 import UWAPI from 'utils/uwapi';
 import logo from 'res/icon.svg';
 import step1 from 'res/calendar-step-1.png';
@@ -280,6 +280,11 @@ function WelcomePage() {
 
   const handleViewScheduleClick = async () => {
     const data = formatPostData(currentCourses, currentClasses, coursesInfo);
+    if (perm(data.filtered_courses).length > 200000) {
+      showSnackbar('warning', 'Try locking some of your courses or reduce the number of courses.', 'Too many course combinations');
+      // TODO: longer timeout
+      return;
+    }
     const url = 'https://qemn8c6rx9.execute-api.us-east-2.amazonaws.com/test/handleschedulerequest';
     try {
       const response = await axios.post(url, data, { timeout: 20000 });

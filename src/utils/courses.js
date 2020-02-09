@@ -133,7 +133,7 @@ const permHelper = (lol) => (!lol.length
   ? [[]] : lol[0].map((x) => prepend(x, permHelper(lol.slice(1)))).flat());
 
 const perm = (fc) => permHelper(
-  fc.map((course) => course.map((oneCourseCombo) => perm(oneCourseCombo)).flat()),
+  fc.map((course) => course.map((oneCourseCombo) => permHelper(oneCourseCombo)).flat()),
 ).map((x) => x.flat());
 
 export {
