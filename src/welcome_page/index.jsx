@@ -5,7 +5,7 @@ import {
   Divider, Snackbar, Fade, Backdrop, createMuiTheme, ThemeProvider,
   Box, CircularProgress, Container, makeStyles, Hidden,
 } from '@material-ui/core';
-import { Autocomplete, Alert } from '@material-ui/lab';
+import { Autocomplete, Alert, AlertTitle } from '@material-ui/lab';
 import { blue } from '@material-ui/core/colors';
 import axios from 'axios';
 import CourseItem from 'components/CourseItem';
@@ -81,6 +81,7 @@ function WelcomePage() {
   const [fullPageLoading, setFullPageLoading] = useState(false);
   const [snackbarOpen, setSnackbarOpen] = useState(false);
   const [snackbarSeverity, setSnackbarSeverity] = useState(''); // snackbarTheme
+  const [snackbarTitle, setSnackbarTitle] = useState('');
   const [snackbarText, setSnackbarText] = useState('');
   const [scheduleImportInput, setScheduleImportInput] = useState(''); // rawCourses
   const [addCourseSubjectInput, setAddCourseSubjectInput] = useState(''); // subjectBox
@@ -115,9 +116,10 @@ function WelcomePage() {
     return classNumbers.every((number) => completeClassNumbers.includes(number));
   };
 
-  const showSnackbar = (severity, text) => {
+  const showSnackbar = (severity, text, title) => {
     setSnackbarSeverity(severity);
     setSnackbarText(text);
+    setSnackbarTitle(title || '');
     setSnackbarOpen(true);
   };
 
@@ -131,14 +133,8 @@ function WelcomePage() {
   const showScheduleInvalidAlert = () => {
     showSnackbar(
       'warning',
-      'Your course info cannot be read.\nPlease make sure it\'s correct and try again.',
-    );
-  };
-
-  const showSnackbarForAddCourse = () => {
-    showSnackbar(
-      'warning',
-      `${addCourseSubjectInput} ${addCourseNumberInput} is unavailable for this term.`,
+      'Please make sure it\'s correct and try again.',
+      'Your course info cannot be read',
     );
   };
 
@@ -211,7 +207,6 @@ function WelcomePage() {
     const newCourseInfo = coursesInfo.filter((item) => getCourseCode(item[0]) !== courseCode);
     setCurrentCourses(newCurrentCourses);
     setCoursesInfo(newCourseInfo);
-    // this.render(); // TODO: Why do we need this line?
   };
 
   const loadAvailCourseNumbers = async (subject) => { // TODO: migrate to useEffect()
@@ -291,6 +286,7 @@ function WelcomePage() {
         autoHideDuration={3000}
       >
         <Alert severity={snackbarSeverity} onClose={hideSnackbar}>
+          {snackbarTitle && <AlertTitle>{snackbarTitle}</AlertTitle>}
           {snackbarText}
         </Alert>
       </Snackbar>
@@ -298,7 +294,7 @@ function WelcomePage() {
 
       <Container maxWidth="lg">
         <Grid container justify="center" spacing={4}>
-          {/* TODO: change spacing to 6 for md and higher */}
+          {/* TODO: change spacing to 6 for md and higher, or leave it 4 */}
           <Grid item xs={12} sm={10} md>
             <Card raised>
               <CardHeader title="Step 1" className={classes.header} />
