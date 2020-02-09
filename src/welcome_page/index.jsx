@@ -225,6 +225,13 @@ function WelcomePage() {
     }
   };
 
+  const handleKeepCourseClick = (courseCode) => {
+    const newCurrentCourses = currentCourses.map((course) => (
+      (course.courseCode === courseCode) ? { ...course, keep: !course.keep } : course
+    ));
+    setCurrentCourses(newCurrentCourses);
+  };
+
   const handleAddClick = async () => {
     if (!addCourseSubjectInput || !addCourseNumberInput) {
       return;
@@ -273,11 +280,9 @@ function WelcomePage() {
 
   const handleViewScheduleClick = async () => {
     const data = formatPostData(currentCourses, currentClasses, coursesInfo);
-    // eslint-disable-next-line no-console
-    console.log(data); // TODO: pass data to back-end
     const url = 'https://qemn8c6rx9.execute-api.us-east-2.amazonaws.com/test/handleschedulerequest';
     try {
-      const response = await axios.post(url, data, { timeout: 100000 });
+      const response = await axios.post(url, data, { timeout: 20000 });
       console.log(response);
     } catch (error) {
       console.log(error);
@@ -408,6 +413,7 @@ function WelcomePage() {
                         keepable={keepable}
                         keep={keep}
                         onDropClick={() => dropCourse(courseCode)}
+                        onKeepClick={() => handleKeepCourseClick(courseCode)}
                       />
                     );
                   })}

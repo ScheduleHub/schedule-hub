@@ -7,7 +7,7 @@ import { RemoveCircleOutline, Lock, LockOpen } from '@material-ui/icons';
 
 function CourseItem(props) {
   const {
-    courseCode, keepable, keep, onDropClick,
+    courseCode, keepable, keep, onDropClick, onKeepClick,
   } = props;
 
   return (
@@ -22,8 +22,11 @@ function CourseItem(props) {
               : 'This course is allowed to be changed'}
           >
             <span>
-              <IconButton aria-label="keep unchanged" disabled={!keepable || true}>
-                {/* Remove || true when implementing keepable */}
+              <IconButton
+                aria-label="keep unchanged"
+                disabled={!keepable}
+                onClick={onKeepClick}
+              >
                 {keep ? <Lock /> : <LockOpen />}
               </IconButton>
             </span>
@@ -44,6 +47,7 @@ CourseItem.propTypes = {
   keepable: PropTypes.bool.isRequired,
   keep: PropTypes.bool.isRequired,
   onDropClick: PropTypes.func.isRequired,
+  onKeepClick: PropTypes.func.isRequired,
 };
 
 export default CourseItem;
