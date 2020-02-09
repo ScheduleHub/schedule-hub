@@ -3,7 +3,7 @@ import PropTypes from 'prop-types';
 import {
   ListItem, ListItemText, ListItemSecondaryAction, IconButton, Tooltip, Hidden,
 } from '@material-ui/core';
-import { Close, Lock, LockOpen } from '@material-ui/icons';
+import { RemoveCircleOutline, Lock, LockOpen } from '@material-ui/icons';
 
 function CourseItem(props) {
   const {
@@ -31,7 +31,7 @@ function CourseItem(props) {
         </Hidden>
         <Tooltip title="Drop this course">
           <IconButton aria-label="drop" onClick={onDropClick}>
-            <Close />
+            <RemoveCircleOutline />
           </IconButton>
         </Tooltip>
       </ListItemSecondaryAction>

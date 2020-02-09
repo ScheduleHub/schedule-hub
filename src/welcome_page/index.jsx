@@ -3,7 +3,7 @@ import {
   Button, TextField, Typography, Grid, Modal, Link, List,
   Card, CardContent, CardHeader, CardMedia, Paper, CssBaseline,
   Divider, Snackbar, Fade, Backdrop, createMuiTheme, ThemeProvider,
-  Box, CircularProgress, Container, makeStyles, Hidden,
+  Box, CircularProgress, Container, makeStyles, Hidden, IconButton, AppBar, Toolbar, Tooltip,
 } from '@material-ui/core';
 import { Autocomplete, Alert, AlertTitle } from '@material-ui/lab';
 import { blue } from '@material-ui/core/colors';
@@ -15,6 +15,7 @@ import logo from 'res/icon.svg';
 import step1 from 'res/calendar-step-1.png';
 import step2 from 'res/calendar-step-2.png';
 import _ from 'lodash';
+import { Close } from '@material-ui/icons';
 
 const apiKey = '4ad350333dc3859b91bcf443d14e4bf0';
 const uwapi = new UWAPI(apiKey);
@@ -41,12 +42,12 @@ const useStyles = makeStyles((theme) => ({
     outline: 'none',
     width: 800,
   },
-  fillRemainingHeight: {
-    flexGrow: 1,
-  },
   flexContainer: {
     display: 'flex',
     flexDirection: 'column',
+  },
+  flexGrow: {
+    flexGrow: 1,
   },
   fullHeight: { height: '100%' },
   header: { background: '#f5f5f5' },
@@ -270,10 +271,17 @@ function WelcomePage() {
     }
   };
 
-  const handleViewScheduleClick = () => {
+  const handleViewScheduleClick = async () => {
     const data = formatPostData(currentCourses, currentClasses, coursesInfo);
     // eslint-disable-next-line no-console
     console.log(data); // TODO: pass data to back-end
+    const url = 'https://qemn8c6rx9.execute-api.us-east-2.amazonaws.com/test/handleschedulerequest';
+    try {
+      const response = await axios.post(url, data, { timeout: 100000 });
+      console.log(response);
+    } catch (error) {
+      console.log(error);
+    }
   };
 
   const handlePaste = (pasteText) => {
@@ -338,12 +346,12 @@ function WelcomePage() {
           <Grid item xs={12} sm={10} md>
             <Card className={`${classes.flexContainer} ${classes.fullHeight}`} raised>
               <CardHeader title="Step 3" className={classes.header} />
-              <CardContent className={`${classes.flexContainer} ${classes.fillRemainingHeight}`}>
+              <CardContent className={`${classes.flexContainer} ${classes.flexGrow}`}>
                 <Box mb={2}>
                   <Typography variant="body1">Paste into the box below.</Typography>
                 </Box>
                 <TextField
-                  className={classes.fillRemainingHeight}
+                  className={classes.flexGrow}
                   value={scheduleImportInput}
                   onPaste={(e) => handlePaste(e.clipboardData.getData('text/plain'))}
                   multiline
@@ -373,13 +381,21 @@ function WelcomePage() {
           timeout: 500,
         }}
         closeAfterTransition
+        disableBackdropClick
       >
         {/* TODO: disable clickaway, add X button at top-right corner */}
         <Fade in={editCourseModalOpen}>
           <Paper className={classes.editCoursePaper}>
-            <Box p={2} className={classes.header}>
-              <Typography variant="h5">Edit my courses</Typography>
-            </Box>
+            <AppBar position="static" color="default" elevation={0}>
+              <Toolbar>
+                <Typography variant="h6" className={classes.flexGrow}>Edit my courses</Typography>
+                <Tooltip title="Close">
+                  <IconButton aria-label="close" onClick={closeEditCourseModal}>
+                    <Close />
+                  </IconButton>
+                </Tooltip>
+              </Toolbar>
+            </AppBar>
             <Grid container>
               <Grid item xs={12} sm>
                 <List className={classes.currentCoursesList}>
