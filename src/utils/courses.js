@@ -129,6 +129,7 @@ const formatPostData = (currentCourses, currentClasses, courseInfo) => {
 
 export {
   areAssociated,
-  getCourseCode,
   formatPostData,
+  getCourseCode,
+  isOnline,
 };

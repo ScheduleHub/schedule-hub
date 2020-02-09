@@ -10,7 +10,7 @@ import { blue } from '@material-ui/core/colors';
 import axios from 'axios';
 import CourseItem from 'components/CourseItem';
 import './index.css';
-import { getCourseCode, formatPostData } from 'utils/courses';
+import { getCourseCode, formatPostData, isOnline } from 'utils/courses';
 import logo from 'res/icon.svg';
 import step1 from 'res/calendar-step-1.png';
 import step2 from 'res/calendar-step-2.png';
@@ -247,14 +247,19 @@ function WelcomePage() {
       setAddCourseLoading(false);
       return;
     }
-
+    const info = response.data.data;
+    if (info.every(isOnline)) {
+      showSnackbar('warning', `${courseCode} is only available online.`);
+      setAddCourseLoading(false);
+      return;
+    }
     newCurrentCourses.push({
       courseCode,
       keepable: false,
       keep: false,
     });
     const newCourseInfo = coursesInfo.slice();
-    newCourseInfo.push(response.data.data);
+    newCourseInfo.push(info);
     setCurrentCourses(newCurrentCourses);
     setCoursesInfo(newCourseInfo);
     setAddCourseLoading(false);
