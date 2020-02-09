@@ -9,7 +9,6 @@ import { Autocomplete, Alert, AlertTitle } from '@material-ui/lab';
 import { blue } from '@material-ui/core/colors';
 import axios from 'axios';
 import CourseItem from 'components/CourseItem';
-import './index.css';
 import { getCourseCode, formatPostData, isOnline } from 'utils/courses';
 import UWAPI from 'utils/uwapi';
 import logo from 'res/icon.svg';
@@ -22,6 +21,9 @@ const uwapi = new UWAPI(apiKey);
 // TODO: terms
 
 const useStyles = makeStyles((theme) => ({
+  addCourseInput: {
+    marginBottom: theme.spacing(2),
+  },
   backdrop: {
     zIndex: theme.zIndex.drawer + 1,
     color: '#ffffff',
@@ -39,13 +41,23 @@ const useStyles = makeStyles((theme) => ({
     outline: 'none',
     width: 800,
   },
-  fillRemainingHeight: { flexGrow: 1 },
+  fillRemainingHeight: {
+    flexGrow: 1,
+  },
   flexContainer: {
     display: 'flex',
     flexDirection: 'column',
   },
   fullHeight: { height: '100%' },
   header: { background: '#f5f5f5' },
+  logo: {
+    display: 'block',
+    height: '16vmin',
+    marginTop: theme.spacing(4),
+    marginBottom: theme.spacing(4),
+    marginLeft: 'auto',
+    marginRight: 'auto',
+  },
   marginLeft: { marginLeft: theme.spacing(2) },
   stepImage: { height: 0, paddingTop: '100%' },
   stickBottom: { marginTop: 'auto' },
@@ -288,7 +300,7 @@ function WelcomePage() {
           {snackbarText}
         </Alert>
       </Snackbar>
-      <img src={logo} alt="Logo" className="logo" />
+      <img src={logo} alt="Logo" className={classes.logo} />
 
       <Container maxWidth="lg">
         <Grid container justify="center" spacing={4}>
@@ -391,7 +403,7 @@ function WelcomePage() {
               <Grid item xs={12} sm>
                 <Box p={2} display="flex" flexDirection="column">
                   <Autocomplete
-                    className="margin-bottom-16"
+                    className={classes.addCourseInput}
                     id="subjectBox"
                     options={availSubjects}
                     renderInput={(params) => (
@@ -417,7 +429,7 @@ function WelcomePage() {
                     value={addCourseSubjectInput}
                   />
                   <Autocomplete
-                    className="margin-bottom-16"
+                    className={classes.addCourseInput}
                     id="courseNumberBox"
                     options={availCourseNumbers}
                     getOptionLabel={(option) => option}
