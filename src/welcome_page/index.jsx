@@ -11,12 +11,15 @@ import axios from 'axios';
 import CourseItem from 'components/CourseItem';
 import './index.css';
 import { getCourseCode, formatPostData, isOnline } from 'utils/courses';
+import UWAPI from 'utils/uwapi';
 import logo from 'res/icon.svg';
 import step1 from 'res/calendar-step-1.png';
 import step2 from 'res/calendar-step-2.png';
 import _ from 'lodash';
 
 const apiKey = '4ad350333dc3859b91bcf443d14e4bf0';
+const uwapi = new UWAPI(apiKey);
+// TODO: terms
 
 const useStyles = makeStyles((theme) => ({
   backdrop: {
@@ -94,28 +97,6 @@ function WelcomePage() {
   // Material UI styles
   const classes = useStyles();
 
-  useEffect( // componentDidMount()
-    () => {
-      const loadAvailSubjects = async () => {
-        const url = 'https://api.uwaterloo.ca/v2/codes/subjects.json';
-        const response = await axios.get(url, {
-          params: {
-            key: apiKey,
-          },
-        });
-        const subjects = response.data.data.map((item) => item.subject);
-        setAvailSubjects(subjects);
-      };
-      loadAvailSubjects();
-    },
-    [],
-  );
-
-  const isValidSchedule = (courseInfo, classNumbers) => {
-    const completeClassNumbers = _.flatten(courseInfo).map((obj) => obj.class_number);
-    return classNumbers.every((number) => completeClassNumbers.includes(number));
-  };
-
   const showSnackbar = (severity, text, title) => {
     setSnackbarSeverity(severity);
     setSnackbarText(text);
@@ -130,6 +111,27 @@ function WelcomePage() {
     setSnackbarOpen(false);
   };
 
+  useEffect( // componentDidMount()
+    () => {
+      const loadAvailSubjects = async () => {
+        try {
+          const subjects = await uwapi.getSubjectCodes();
+          setAvailSubjects(subjects);
+        } catch (error) {
+          showSnackbar('error', 'Unable to load courses.');
+        }
+      };
+      loadAvailSubjects();
+    },
+    [],
+  );
+
+  const isValidSchedule = (courseInfo, classNumbers) => {
+    const completeClassNumbers = _.flatten(courseInfo).map((obj) => obj.class_number);
+    return classNumbers.every((number) => completeClassNumbers.includes(number));
+  };
+
+
   const showScheduleInvalidAlert = () => {
     showSnackbar(
       'warning',
@@ -139,19 +141,7 @@ function WelcomePage() {
   };
 
   const loadCourseInfo = async (courseNames, classNumbers) => {
-    const timeout = 6000;
-    const instance = axios.create({
-      baseURL: 'https://api.uwaterloo.ca/v2/courses',
-      timeout,
-    });
-    const promises = courseNames.map((str) => {
-      const [sub, cata] = str.split(' ');
-      return instance.get(`/${sub}/${cata}/schedule.json`, {
-        params: {
-          key: apiKey,
-        },
-      });
-    });
+    const promises = uwapi.getCourseScheduleMulti(courseNames);
     setFullPageLoading(true);
     axios.all(promises).then((values) => {
       const courseInfo = values.map((value) => value.data.data);
@@ -166,7 +156,7 @@ function WelcomePage() {
         showScheduleInvalidAlert();
       }
     }).catch((error) => {
-      if (error.message === `timeout of ${timeout}ms exceeded`) {
+      if (error.message.startsWith('timeout')) {
         showSnackbar('error', 'Network Timeout');
       } else {
         showSnackbar('error', error.message);
@@ -214,14 +204,12 @@ function WelcomePage() {
       setAvailCourseNumbers([]);
       return;
     }
-    const url = `https://api.uwaterloo.ca/v2/courses/${subject}.json`;
-    const response = await axios.get(url, {
-      params: {
-        key: apiKey,
-      },
-    });
-    const courseNumbers = response.data.data.map((item) => item.catalog_number);
-    setAvailCourseNumbers(courseNumbers);
+    try {
+      const courseNumbers = await uwapi.getCourseNumbers(subject);
+      setAvailCourseNumbers(courseNumbers);
+    } catch (error) {
+      setAvailCourseNumbers([]);
+    }
   };
 
   const handleAddClick = async () => {
@@ -236,33 +224,38 @@ function WelcomePage() {
       setAddCourseLoading(false);
       return;
     }
-    const url = `https://api.uwaterloo.ca/v2/courses/${addCourseSubjectInput}/${addCourseNumberInput}/schedule.json`;
-    const response = await axios.get(url, {
-      params: {
-        key: apiKey,
-      },
-    });
-    if (response.data.meta.status !== 200) {
-      showSnackbar('warning', `${courseCode} is unavailable for this term.`);
+
+    try {
+      const classesInfo = await uwapi.getCourseSchedule(
+        addCourseSubjectInput, addCourseNumberInput,
+      );
+      if (classesInfo.every(isOnline)) {
+        const error = new Error(`${courseCode} is only available online.`);
+        error.name = 'UW online';
+        throw error;
+      }
+      newCurrentCourses.push({
+        courseCode,
+        keepable: false,
+        keep: false,
+      });
+      const newCourseInfo = coursesInfo.slice();
+      newCourseInfo.push(classesInfo);
+      setCurrentCourses(newCurrentCourses);
+      setCoursesInfo(newCourseInfo);
+    } catch (error) {
+      if (error.name === 'UW 204') {
+        showSnackbar('warning', `${courseCode} is unavailable for this term.`);
+      } else if (error.name === 'UW online') {
+        showSnackbar('warning', error.message);
+      } else if (error.message.startsWith('timeout')) {
+        showSnackbar('error', 'Network Timeout');
+      } else {
+        showSnackbar('error', error.message);
+      }
+    } finally {
       setAddCourseLoading(false);
-      return;
     }
-    const info = response.data.data;
-    if (info.every(isOnline)) {
-      showSnackbar('warning', `${courseCode} is only available online.`);
-      setAddCourseLoading(false);
-      return;
-    }
-    newCurrentCourses.push({
-      courseCode,
-      keepable: false,
-      keep: false,
-    });
-    const newCourseInfo = coursesInfo.slice();
-    newCourseInfo.push(info);
-    setCurrentCourses(newCurrentCourses);
-    setCoursesInfo(newCourseInfo);
-    setAddCourseLoading(false);
   };
 
   const handleViewScheduleClick = () => {
@@ -369,6 +362,7 @@ function WelcomePage() {
         }}
         closeAfterTransition
       >
+        {/* TODO: disable clickaway, add X button at top-right corner */}
         <Fade in={editCourseModalOpen}>
           <Paper className={classes.editCoursePaper}>
             <Box p={2} className={classes.header}>
