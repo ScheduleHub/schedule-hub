@@ -1,23 +1,19 @@
 self.__precacheManifest = (self.__precacheManifest || []).concat([
   {
-    "revision": "fdfd2caf56c74e7f19a24a911cf79867",
+    "revision": "f2595e05f84561a128115f56af01373c",
     "url": "/schedule-planner/index.html"
   },
   {
-    "revision": "0b3c042249410405ed15",
-    "url": "/schedule-planner/static/css/main.cf093999.chunk.css"
-  },
-  {
-    "revision": "67318ec28c0c117fbc03",
-    "url": "/schedule-planner/static/js/2.b35071c0.chunk.js"
+    "revision": "41f6198f64e8ad82a37e",
+    "url": "/schedule-planner/static/js/2.38eb5249.chunk.js"
   },
   {
     "revision": "c9f5624060174d9ee18c079664438859",
-    "url": "/schedule-planner/static/js/2.b35071c0.chunk.js.LICENSE"
+    "url": "/schedule-planner/static/js/2.38eb5249.chunk.js.LICENSE"
   },
   {
-    "revision": "0b3c042249410405ed15",
-    "url": "/schedule-planner/static/js/main.c0861823.chunk.js"
+    "revision": "9fdab91ed481bb70e591",
+    "url": "/schedule-planner/static/js/main.192679b9.chunk.js"
   },
   {
     "revision": "49a63cd6039c396b9107",
