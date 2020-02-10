@@ -9,7 +9,9 @@ import { Autocomplete, Alert, AlertTitle } from '@material-ui/lab';
 import { blue } from '@material-ui/core/colors';
 import axios from 'axios';
 import CourseItem from 'components/CourseItem';
-import { getCourseCode, formatPostData, isOnline, perm } from 'utils/courses';
+import {
+  getCourseCode, formatPostData, isOnline, perm,
+} from 'utils/courses';
 import UWAPI from 'utils/uwapi';
 import logo from 'res/icon.svg';
 import step1 from 'res/calendar-step-1.png';
@@ -212,7 +214,7 @@ function WelcomePage() {
     setCoursesInfo(newCourseInfo);
   };
 
-  const loadAvailCourseNumbers = async (subject) => { // TODO: migrate to useEffect()
+  const loadAvailCourseNumbers = async (subject) => {
     if (!subject) {
       setAvailCourseNumbers([]);
       return;
@@ -282,15 +284,18 @@ function WelcomePage() {
     const data = formatPostData(currentCourses, currentClasses, coursesInfo);
     if (perm(data.filtered_courses).length > 200000) {
       showSnackbar('warning', 'Try locking some of your courses or reduce the number of courses.', 'Too many course combinations');
-      // TODO: longer timeout
       return;
     }
     const url = 'https://qemn8c6rx9.execute-api.us-east-2.amazonaws.com/test/handleschedulerequest';
     try {
-      const response = await axios.post(url, data, { timeout: 20000 });
+      const response = await axios.post(url, data, { timeout: 15000 });
       console.log(response);
     } catch (error) {
-      console.log(error);
+      if (error.message.startsWith('timeout')) {
+        showSnackbar('error', 'Network Timeout');
+      } else {
+        showSnackbar('error', error.message);
+      }
     }
   };
 
@@ -311,7 +316,7 @@ function WelcomePage() {
         open={snackbarOpen}
         onClose={hideSnackbar}
         anchorOrigin={{ vertical: 'top', horizontal: 'center' }}
-        autoHideDuration={3000}
+        autoHideDuration={4000}
       >
         <Alert severity={snackbarSeverity} onClose={hideSnackbar}>
           {snackbarTitle && <AlertTitle>{snackbarTitle}</AlertTitle>}
@@ -322,7 +327,6 @@ function WelcomePage() {
 
       <Container maxWidth="lg">
         <Grid container justify="center" spacing={4}>
-          {/* TODO: change spacing to 6 for md and higher, or leave it 4 */}
           <Grid item xs={12} sm={10} md>
             <Card raised>
               <CardHeader title="Step 1" className={classes.header} />
@@ -393,7 +397,6 @@ function WelcomePage() {
         closeAfterTransition
         disableBackdropClick
       >
-        {/* TODO: disable clickaway, add X button at top-right corner */}
         <Fade in={editCourseModalOpen}>
           <Paper className={classes.editCoursePaper}>
             <AppBar position="static" color="default" elevation={0}>
