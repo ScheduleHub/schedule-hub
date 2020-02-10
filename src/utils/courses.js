@@ -37,9 +37,7 @@ import _ from 'lodash';
  * @param {ClassInfo} classInfo1 the ClassInfo object to compare.
  * @param {ClassInfo} classInfo2 the other ClassInfo object to compare.
  */
-const areAssociated = (classInfo1, classInfo2) => (
-  classInfo1.associated_class === classInfo2.associated_class
-);
+const areAssociated = (classInfo1, classInfo2) => classInfo1.associated_class === classInfo2.associated_class;
 
 /**
  * Returns the course code of a class.
@@ -133,13 +131,9 @@ const permHelper = (lol) => (!lol.length
   ? [[]] : lol[0].map((x) => prepend(x, permHelper(lol.slice(1)))).flat());
 
 const perm = (fc) => permHelper(
-  fc.map((course) => course.map((oneCourseCombo) => permHelper(oneCourseCombo)).flat()),
+  fc.map((course) => course.map((oneCourseCombo) => perm(oneCourseCombo)).flat()),
 ).map((x) => x.flat());
 
 export {
-  areAssociated,
-  formatPostData,
-  getCourseCode,
-  isOnline,
-  perm,
+  areAssociated, getCourseCode, formatPostData, perm,
 };
