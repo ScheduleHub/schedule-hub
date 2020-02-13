@@ -3,8 +3,10 @@ import {
   Button, TextField, Typography, Grid, Modal, Link, List,
   Card, CardContent, CardHeader, CardMedia, Paper, CssBaseline,
   Divider, Snackbar, Fade, Backdrop, createMuiTheme, ThemeProvider,
-  Box, CircularProgress, Container, makeStyles, Hidden, IconButton, AppBar, Toolbar, Tooltip,
+  Box, CircularProgress, Container, makeStyles, Hidden, IconButton,
+  AppBar, Toolbar, Tooltip, Slider,
 } from '@material-ui/core';
+import PropTypes from 'prop-types';
 import { Autocomplete, Alert, AlertTitle } from '@material-ui/lab';
 import { blue } from '@material-ui/core/colors';
 import axios from 'axios';
@@ -18,6 +20,7 @@ import step1 from 'res/calendar-step-1.png';
 import step2 from 'res/calendar-step-2.png';
 import _ from 'lodash';
 import { Close } from '@material-ui/icons';
+import HelpOutlineIcon from '@material-ui/icons/HelpOutline';
 
 const apiKey = '4ad350333dc3859b91bcf443d14e4bf0';
 const uwapi = new UWAPI(apiKey);
@@ -33,7 +36,7 @@ const useStyles = makeStyles((theme) => ({
   },
   currentCoursesList: {
     overflowY: 'scroll',
-    height: 360,
+    height: 400,
   },
   editCourseModal: {
     alignItems: 'center',
@@ -95,7 +98,7 @@ function WelcomePage() {
   const [currentCourses, setCurrentCourses] = useState([]);
 
   // UI states
-  const [editCourseModalOpen, setEditCourseModalOpen] = useState(false); // modalShow
+  const [editCourseModalOpen, setEditCourseModalOpen] = useState(true); // modalShow
   const [fullPageLoading, setFullPageLoading] = useState(false);
   const [snackbarOpen, setSnackbarOpen] = useState(false);
   const [snackbarSeverity, setSnackbarSeverity] = useState(''); // snackbarTheme
@@ -111,6 +114,22 @@ function WelcomePage() {
 
   // Material UI styles
   const classes = useStyles();
+
+  function ValueLabelComponent(props) {
+    const { children, open, value } = props;
+
+    return (
+      <Tooltip open={open} enterTouchDelay={0} placement="top" title={value}>
+        {children}
+      </Tooltip>
+    );
+  }
+
+  ValueLabelComponent.propTypes = {
+    children: PropTypes.element.isRequired,
+    open: PropTypes.bool.isRequired,
+    value: PropTypes.number.isRequired,
+  };
 
   const showSnackbar = (severity, text, title) => {
     setSnackbarSeverity(severity);
@@ -489,6 +508,24 @@ function WelcomePage() {
                     >
                       Add Course
                     </Button>
+                  </Box>
+                  <Box style={{ width: '90%', marginLeft: 'auto', marginRight: 'auto' }}>
+                    <Typography>First Class</Typography>
+                    <Slider
+                      ValueLabelComponent={ValueLabelComponent}
+                      defaultValue={50}
+                      marks={[{ value: 0, label: 'early' }, { value: 100, label: 'late' }]}
+                    />
+                    <Typography>Even Distribution</Typography>
+                    <Slider
+                      ValueLabelComponent={ValueLabelComponent}
+                      defaultValue={50}
+                    />
+                    <Typography>Cluster Classes</Typography>
+                    <Slider
+                      ValueLabelComponent={ValueLabelComponent}
+                      defaultValue={50}
+                    />
                   </Box>
                 </Box>
               </Grid>
