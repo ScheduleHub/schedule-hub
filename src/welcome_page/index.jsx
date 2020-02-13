@@ -38,9 +38,6 @@ const useStyles = makeStyles((theme) => ({
     overflowY: 'scroll',
     height: '100%',
   },
-  preferenceIndicator: {
-    fontStyle: 'italic',
-  },
   preferenceHeader: {
     color: 'rgba(0, 0, 0, 0.54)',
   },
