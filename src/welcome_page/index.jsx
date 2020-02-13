@@ -4,7 +4,7 @@ import {
   Card, CardContent, CardHeader, CardMedia, Paper, CssBaseline,
   Divider, Snackbar, Fade, Backdrop, createMuiTheme, ThemeProvider,
   Box, CircularProgress, Container, makeStyles, Hidden, IconButton,
-  AppBar, Toolbar, Tooltip, Slider,
+  AppBar, Toolbar, Tooltip, Slider, Popover,
 } from '@material-ui/core';
 import PropTypes from 'prop-types';
 import { Autocomplete, Alert, AlertTitle } from '@material-ui/lab';
@@ -36,7 +36,13 @@ const useStyles = makeStyles((theme) => ({
   },
   currentCoursesList: {
     overflowY: 'scroll',
-    height: 400,
+    height: '100%',
+  },
+  preferenceIndicator: {
+    fontStyle: 'italic',
+  },
+  preferenceHeader: {
+    color: 'rgba(0, 0, 0, 0.54)',
   },
   editCourseModal: {
     alignItems: 'center',
@@ -45,7 +51,7 @@ const useStyles = makeStyles((theme) => ({
   },
   editCoursePaper: {
     outline: 'none',
-    width: 800,
+    width: 750,
   },
   flexContainer: {
     display: 'flex',
@@ -68,6 +74,12 @@ const useStyles = makeStyles((theme) => ({
   stepImage: { height: 0, paddingTop: '100%' },
   stickBottom: { marginTop: 'auto' },
   stickRight: { marginLeft: 'auto' },
+  popover: {
+    pointerEvents: 'none',
+  },
+  paper: {
+    padding: theme.spacing(1),
+  },
 }));
 
 const theme = createMuiTheme({
@@ -89,6 +101,86 @@ const theme = createMuiTheme({
   },
 });
 
+function PreferenceSlider(props) {
+  const {
+    label, helpMsg, leftLabel, rightLabel, sliderValue, handleSliderValueChange,
+  } = props;
+
+  const classes = useStyles();
+  const [anchorEl, setAnchorEl] = useState(null);
+
+  const handlePopoverOpen = (event) => {
+    setAnchorEl(event.currentTarget);
+  };
+
+  const handlePopoverClose = () => {
+    setAnchorEl(null);
+  };
+
+  const open = Boolean(anchorEl);
+
+  return (
+    <Box>
+      <Typography component="span" gutterBottom className={classes.preferenceHeader}>
+        <Box display="inline" fontWeight="fontWeightMedium">{`${label} `}</Box>
+        <Typography
+          display="inline"
+          aria-owns={open ? 'mouse-over-popover' : undefined}
+          aria-haspopup="true"
+          onMouseEnter={handlePopoverOpen}
+          onMouseLeave={handlePopoverClose}
+        >
+          <HelpOutlineIcon
+            color="action"
+            fontSize="small"
+          />
+        </Typography>
+        <Popover
+          id="mouse-over-popover"
+          className={classes.popover}
+          classes={{
+            paper: classes.paper,
+          }}
+          open={open}
+          anchorEl={anchorEl}
+          anchorOrigin={{
+            vertical: 'bottom',
+            horizontal: 'left',
+          }}
+          onClose={handlePopoverClose}
+          disableRestoreFocus
+        >
+          <Typography style={{ whiteSpace: 'pre' }}>{helpMsg}</Typography>
+        </Popover>
+      </Typography>
+      <Grid container spacing={1}>
+        <Grid item>
+          <Typography color="textSecondary">{leftLabel}</Typography>
+        </Grid>
+        <Grid item xs>
+          <Slider
+            display="inline"
+            value={sliderValue}
+            onChange={(e, v) => handleSliderValueChange(e, v)}
+          />
+        </Grid>
+        <Grid item>
+          <Typography color="textSecondary">{rightLabel}</Typography>
+        </Grid>
+      </Grid>
+    </Box>
+  );
+}
+
+PreferenceSlider.propTypes = {
+  label: PropTypes.string.isRequired,
+  helpMsg: PropTypes.string.isRequired,
+  leftLabel: PropTypes.string.isRequired,
+  rightLabel: PropTypes.string.isRequired,
+  sliderValue: PropTypes.number.isRequired,
+  handleSliderValueChange: PropTypes.func.isRequired,
+};
+
 function WelcomePage() {
   // Data states
   const [coursesInfo, setCoursesInfo] = useState([]); // courseInfo
@@ -98,7 +190,7 @@ function WelcomePage() {
   const [currentCourses, setCurrentCourses] = useState([]);
 
   // UI states
-  const [editCourseModalOpen, setEditCourseModalOpen] = useState(true); // modalShow
+  const [editCourseModalOpen, setEditCourseModalOpen] = useState(false); // modalShow
   const [fullPageLoading, setFullPageLoading] = useState(false);
   const [snackbarOpen, setSnackbarOpen] = useState(false);
   const [snackbarSeverity, setSnackbarSeverity] = useState(''); // snackbarTheme
@@ -108,6 +200,9 @@ function WelcomePage() {
   const [addCourseSubjectInput, setAddCourseSubjectInput] = useState(''); // subjectBox
   const [addCourseNumberInput, setAddCourseNumberInput] = useState(''); // courseNumberBox
   const [addCourseLoading, setAddCourseLoading] = useState(false);
+  const [firstClassSliderValue, setFirstClassSliderValue] = useState(50);
+  const [evenDistSliderValue, setEvenDistSliderValue] = useState(50);
+  const [clusterClassSliderValue, setClusterClassSliderValue] = useState(50);
 
   // Refs
   const addCourseNumberInputRef = useRef(); // courseNumberBoxRef
@@ -115,21 +210,6 @@ function WelcomePage() {
   // Material UI styles
   const classes = useStyles();
 
-  function ValueLabelComponent(props) {
-    const { children, open, value } = props;
-
-    return (
-      <Tooltip open={open} enterTouchDelay={0} placement="top" title={value}>
-        {children}
-      </Tooltip>
-    );
-  }
-
-  ValueLabelComponent.propTypes = {
-    children: PropTypes.element.isRequired,
-    open: PropTypes.bool.isRequired,
-    value: PropTypes.number.isRequired,
-  };
 
   const showSnackbar = (severity, text, title) => {
     setSnackbarSeverity(severity);
@@ -305,6 +385,7 @@ function WelcomePage() {
       showSnackbar('warning', 'Try locking some of your courses or reduce the number of courses.', 'Too many course combinations');
       return;
     }
+    data.preferences = [firstClassSliderValue, evenDistSliderValue, clusterClassSliderValue];
     const url = 'https://qemn8c6rx9.execute-api.us-east-2.amazonaws.com/test/handleschedulerequest';
     try {
       const response = await axios.post(url, data, { timeout: 15000 });
@@ -327,6 +408,12 @@ function WelcomePage() {
       showSnackbar('error', error.message);
     }
   };
+
+  const handleFirstClassSliderChange = (event, value) => setFirstClassSliderValue(value);
+
+  const handleEvenDistSliderChange = (event, value) => setEvenDistSliderValue(value);
+
+  const handleClusterClassSliderChange = (event, value) => setClusterClassSliderValue(value);
 
   return (
     <ThemeProvider theme={theme}>
@@ -509,22 +596,30 @@ function WelcomePage() {
                       Add Course
                     </Button>
                   </Box>
-                  <Box style={{ width: '90%', marginLeft: 'auto', marginRight: 'auto' }}>
-                    <Typography>First Class</Typography>
-                    <Slider
-                      ValueLabelComponent={ValueLabelComponent}
-                      defaultValue={50}
-                      marks={[{ value: 0, label: 'early' }, { value: 100, label: 'late' }]}
+                  <Box paddingTop={2} px={1}>
+                    <PreferenceSlider
+                      label="First Class"
+                      helpMsg="whether you prefer to start your day early"
+                      leftLabel="Early"
+                      rightLabel="Late"
+                      sliderValue={firstClassSliderValue}
+                      handleSliderValueChange={handleFirstClassSliderChange}
                     />
-                    <Typography>Even Distribution</Typography>
-                    <Slider
-                      ValueLabelComponent={ValueLabelComponent}
-                      defaultValue={50}
+                    <PreferenceSlider
+                      label="Even Distribution"
+                      helpMsg="whether you prefer to have approximately same number of classes everyday"
+                      leftLabel="Even"
+                      rightLabel="Uneven"
+                      sliderValue={evenDistSliderValue}
+                      handleSliderValueChange={handleEvenDistSliderChange}
                     />
-                    <Typography>Cluster Classes</Typography>
-                    <Slider
-                      ValueLabelComponent={ValueLabelComponent}
-                      defaultValue={50}
+                    <PreferenceSlider
+                      label="Cluster Classes"
+                      helpMsg="whether you prefer to have your classes back to back or separately"
+                      leftLabel="Together"
+                      rightLabel="Separate"
+                      sliderValue={clusterClassSliderValue}
+                      handleSliderValueChange={handleClusterClassSliderChange}
                     />
                   </Box>
                 </Box>
@@ -555,5 +650,4 @@ function WelcomePage() {
     </ThemeProvider>
   );
 }
-
 export default WelcomePage;
