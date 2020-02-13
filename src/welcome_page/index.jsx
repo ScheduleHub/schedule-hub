@@ -39,7 +39,7 @@ const useStyles = makeStyles((theme) => ({
     height: '100%',
   },
   preferenceHeader: {
-    color: 'rgba(0, 0, 0, 0.54)',
+    color: '#666666',
   },
   editCourseModal: {
     alignItems: 'center',
