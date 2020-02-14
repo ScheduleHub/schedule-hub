@@ -1,13 +1,13 @@
 {
   "files": {
-    "main.js": "/schedule-hub/static/js/main.fdd80dc2.chunk.js",
-    "main.js.map": "/schedule-hub/static/js/main.fdd80dc2.chunk.js.map",
+    "main.js": "/schedule-hub/static/js/main.7d0cb35f.chunk.js",
+    "main.js.map": "/schedule-hub/static/js/main.7d0cb35f.chunk.js.map",
     "runtime-main.js": "/schedule-hub/static/js/runtime-main.d991c7a0.js",
     "runtime-main.js.map": "/schedule-hub/static/js/runtime-main.d991c7a0.js.map",
     "static/js/2.5ef30d5c.chunk.js": "/schedule-hub/static/js/2.5ef30d5c.chunk.js",
     "static/js/2.5ef30d5c.chunk.js.map": "/schedule-hub/static/js/2.5ef30d5c.chunk.js.map",
     "index.html": "/schedule-hub/index.html",
-    "precache-manifest.9d37557dbe82dd10c3edb26d81e4a0a8.js": "/schedule-hub/precache-manifest.9d37557dbe82dd10c3edb26d81e4a0a8.js",
+    "precache-manifest.7e1dfec1b453dbce633932897bb6d7d8.js": "/schedule-hub/precache-manifest.7e1dfec1b453dbce633932897bb6d7d8.js",
     "service-worker.js": "/schedule-hub/service-worker.js",
     "static/js/2.5ef30d5c.chunk.js.LICENSE": "/schedule-hub/static/js/2.5ef30d5c.chunk.js.LICENSE",
     "static/media/calendar-step-1.png": "/schedule-hub/static/media/calendar-step-1.5a0cc442.png",
@@ -17,6 +17,6 @@
   "entrypoints": [
     "static/js/runtime-main.d991c7a0.js",
     "static/js/2.5ef30d5c.chunk.js",
-    "static/js/main.fdd80dc2.chunk.js"
+    "static/js/main.7d0cb35f.chunk.js"
   ]
 }
