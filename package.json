@@ -1,7 +1,7 @@
 {
   "name": "schedule-planner",
   "version": "0.1.0",
-  "homepage": "https://wuqs-net.github.io/schedule-planner",
+  "homepage": "https://schedulehub.github.io/schedule-hub/",
   "private": true,
   "dependencies": {
     "@material-ui/core": "^4.8.3",
