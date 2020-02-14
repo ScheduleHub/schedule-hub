@@ -71,12 +71,21 @@ const useStyles = makeStyles((theme) => ({
       marginBottom: theme.spacing(2),
     },
   },
-  logo: {
-    height: 64,
+  icon: {
+    height: 72,
     marginLeft: theme.spacing(0.5),
     marginRight: theme.spacing(0.5),
     [theme.breakpoints.down('xs')]: {
-      height: 48,
+      height: 64,
+    },
+  },
+  logo: {
+    alignSelf: 'flex-end',
+    height: 48,
+    marginLeft: theme.spacing(0.5),
+    marginRight: theme.spacing(0.5),
+    [theme.breakpoints.down('xs')]: {
+      height: 40,
     },
   },
   marginLeft: { marginLeft: theme.spacing(2) },
@@ -439,7 +448,7 @@ function WelcomePage() {
         </Alert>
       </Snackbar>
       <div className={classes.logoWrap}>
-        <img src={icon} alt="" className={classes.logo} />
+        <img src={icon} alt="" className={classes.icon} />
         <img src={logo} alt="ScheduleHub" className={classes.logo} />
       </div>
 
