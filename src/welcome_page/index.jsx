@@ -72,20 +72,20 @@ const useStyles = makeStyles((theme) => ({
     },
   },
   icon: {
-    height: 72,
+    height: 108,
     marginLeft: theme.spacing(0.5),
     marginRight: theme.spacing(0.5),
     [theme.breakpoints.down('xs')]: {
-      height: 64,
+      height: 72,
     },
   },
   logo: {
     alignSelf: 'flex-end',
-    height: 48,
+    height: 40,
     marginLeft: theme.spacing(0.5),
     marginRight: theme.spacing(0.5),
     [theme.breakpoints.down('xs')]: {
-      height: 40,
+      height: 32,
     },
   },
   marginLeft: { marginLeft: theme.spacing(2) },
