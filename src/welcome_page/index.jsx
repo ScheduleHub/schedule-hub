@@ -45,6 +45,7 @@ const useStyles = makeStyles((theme) => ({
     alignItems: 'center',
     display: 'flex',
     justifyContent: 'center',
+    overflow: 'auto',
   },
   editCoursePaper: {
     outline: 'none',
