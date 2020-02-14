@@ -15,7 +15,8 @@ import {
   getCourseCode, formatPostData, isOnline, perm,
 } from 'utils/courses';
 import UWAPI from 'utils/uwapi';
-import logo from 'res/icon.svg';
+import icon from 'res/icon.svg';
+import logo from 'res/schedule-hub.png';
 import step1 from 'res/calendar-step-1.png';
 import step2 from 'res/calendar-step-2.png';
 import _ from 'lodash';
@@ -27,6 +28,9 @@ const uwapi = new UWAPI(apiKey);
 // TODO: terms
 
 const useStyles = makeStyles((theme) => ({
+  gridContainer: {
+    paddingTop: '20px',
+  },
   addCourseInput: {
     marginBottom: theme.spacing(2),
   },
@@ -60,13 +64,17 @@ const useStyles = makeStyles((theme) => ({
   },
   fullHeight: { height: '100%' },
   header: { background: '#f5f5f5' },
+  logoWrap: {
+    textAlign: 'center',
+    marginTop: '20px',
+  },
+  icon: {
+    display: 'inline-block',
+    height: '8vmin',
+  },
   logo: {
-    display: 'block',
-    height: '16vmin',
-    marginTop: theme.spacing(4),
-    marginBottom: theme.spacing(4),
-    marginLeft: 'auto',
-    marginRight: 'auto',
+    display: 'inline',
+    height: '5vmin',
   },
   marginLeft: { marginLeft: theme.spacing(2) },
   stepImage: { height: 0, paddingTop: '100%' },
@@ -427,9 +435,13 @@ function WelcomePage() {
           {snackbarText}
         </Alert>
       </Snackbar>
-      <img src={logo} alt="Logo" className={classes.logo} />
+      <div className={classes.logoWrap}>
+        <img src={icon} alt="Logo" className={classes.icon} />
+        <img src={logo} alt="Logo" className={classes.logo} />
+      </div>
 
-      <Container maxWidth="lg">
+
+      <Container className={classes.gridContainer} maxWidth="lg">
         <Grid container justify="center" spacing={4}>
           <Grid item xs={12} sm={10} md>
             <Card raised>
