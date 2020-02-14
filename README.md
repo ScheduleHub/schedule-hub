@@ -1,6 +1,6 @@
 # schedule-planner
 
-https://wuqs-net.github.io/schedule-planner/
+https://schedulehub.github.io/schedule-hub/
 
 ## Install Dependencies
 
