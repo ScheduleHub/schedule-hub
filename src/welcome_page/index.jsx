@@ -28,9 +28,6 @@ const uwapi = new UWAPI(apiKey);
 // TODO: terms
 
 const useStyles = makeStyles((theme) => ({
-  gridContainer: {
-    paddingTop: '20px',
-  },
   addCourseInput: {
     marginBottom: theme.spacing(2),
   },
@@ -65,16 +62,22 @@ const useStyles = makeStyles((theme) => ({
   fullHeight: { height: '100%' },
   header: { background: '#f5f5f5' },
   logoWrap: {
-    textAlign: 'center',
-    marginTop: '20px',
-  },
-  icon: {
-    display: 'inline-block',
-    height: '8vmin',
+    display: 'flex',
+    justifyContent: 'center',
+    marginTop: theme.spacing(4),
+    marginBottom: theme.spacing(4),
+    [theme.breakpoints.down('xs')]: {
+      marginTop: theme.spacing(2),
+      marginBottom: theme.spacing(2),
+    },
   },
   logo: {
-    display: 'inline',
-    height: '5vmin',
+    height: 64,
+    marginLeft: theme.spacing(0.5),
+    marginRight: theme.spacing(0.5),
+    [theme.breakpoints.down('xs')]: {
+      height: 48,
+    },
   },
   marginLeft: { marginLeft: theme.spacing(2) },
   stepImage: { height: 0, paddingTop: '100%' },
@@ -436,8 +439,8 @@ function WelcomePage() {
         </Alert>
       </Snackbar>
       <div className={classes.logoWrap}>
-        <img src={icon} alt="Logo" className={classes.icon} />
-        <img src={logo} alt="Logo" className={classes.logo} />
+        <img src={icon} alt="" className={classes.logo} />
+        <img src={logo} alt="ScheduleHub" className={classes.logo} />
       </div>
 
 
