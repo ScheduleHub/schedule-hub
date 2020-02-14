@@ -1,22 +1,22 @@
 {
   "files": {
-    "main.js": "/schedule-planner/static/js/main.32f5c81a.chunk.js",
-    "main.js.map": "/schedule-planner/static/js/main.32f5c81a.chunk.js.map",
-    "runtime-main.js": "/schedule-planner/static/js/runtime-main.4085c92f.js",
-    "runtime-main.js.map": "/schedule-planner/static/js/runtime-main.4085c92f.js.map",
-    "static/js/2.cc370588.chunk.js": "/schedule-planner/static/js/2.cc370588.chunk.js",
-    "static/js/2.cc370588.chunk.js.map": "/schedule-planner/static/js/2.cc370588.chunk.js.map",
-    "index.html": "/schedule-planner/index.html",
-    "precache-manifest.90aabafe02ea47fc49dc440b156c675c.js": "/schedule-planner/precache-manifest.90aabafe02ea47fc49dc440b156c675c.js",
-    "service-worker.js": "/schedule-planner/service-worker.js",
-    "static/js/2.cc370588.chunk.js.LICENSE": "/schedule-planner/static/js/2.cc370588.chunk.js.LICENSE",
-    "static/media/calendar-step-1.png": "/schedule-planner/static/media/calendar-step-1.5a0cc442.png",
-    "static/media/calendar-step-2.png": "/schedule-planner/static/media/calendar-step-2.514203ac.png",
-    "static/media/icon.svg": "/schedule-planner/static/media/icon.47f3ae83.svg"
+    "main.js": "/schedule-hub/static/js/main.1c8988e6.chunk.js",
+    "main.js.map": "/schedule-hub/static/js/main.1c8988e6.chunk.js.map",
+    "runtime-main.js": "/schedule-hub/static/js/runtime-main.d991c7a0.js",
+    "runtime-main.js.map": "/schedule-hub/static/js/runtime-main.d991c7a0.js.map",
+    "static/js/2.be372a9c.chunk.js": "/schedule-hub/static/js/2.be372a9c.chunk.js",
+    "static/js/2.be372a9c.chunk.js.map": "/schedule-hub/static/js/2.be372a9c.chunk.js.map",
+    "index.html": "/schedule-hub/index.html",
+    "precache-manifest.a361002e04a6aa05161196d01dba86a1.js": "/schedule-hub/precache-manifest.a361002e04a6aa05161196d01dba86a1.js",
+    "service-worker.js": "/schedule-hub/service-worker.js",
+    "static/js/2.be372a9c.chunk.js.LICENSE": "/schedule-hub/static/js/2.be372a9c.chunk.js.LICENSE",
+    "static/media/calendar-step-1.png": "/schedule-hub/static/media/calendar-step-1.5a0cc442.png",
+    "static/media/calendar-step-2.png": "/schedule-hub/static/media/calendar-step-2.514203ac.png",
+    "static/media/icon.svg": "/schedule-hub/static/media/icon.47f3ae83.svg"
   },
   "entrypoints": [
-    "static/js/runtime-main.4085c92f.js",
-    "static/js/2.cc370588.chunk.js",
-    "static/js/main.32f5c81a.chunk.js"
+    "static/js/runtime-main.d991c7a0.js",
+    "static/js/2.be372a9c.chunk.js",
+    "static/js/main.1c8988e6.chunk.js"
   ]
 }
