@@ -1,22 +1,22 @@
 {
   "files": {
-    "main.js": "/schedule-hub/static/js/main.56b577ea.chunk.js",
-    "main.js.map": "/schedule-hub/static/js/main.56b577ea.chunk.js.map",
+    "main.js": "/schedule-hub/static/js/main.fdd80dc2.chunk.js",
+    "main.js.map": "/schedule-hub/static/js/main.fdd80dc2.chunk.js.map",
     "runtime-main.js": "/schedule-hub/static/js/runtime-main.d991c7a0.js",
     "runtime-main.js.map": "/schedule-hub/static/js/runtime-main.d991c7a0.js.map",
-    "static/js/2.8ba9816c.chunk.js": "/schedule-hub/static/js/2.8ba9816c.chunk.js",
-    "static/js/2.8ba9816c.chunk.js.map": "/schedule-hub/static/js/2.8ba9816c.chunk.js.map",
+    "static/js/2.5ef30d5c.chunk.js": "/schedule-hub/static/js/2.5ef30d5c.chunk.js",
+    "static/js/2.5ef30d5c.chunk.js.map": "/schedule-hub/static/js/2.5ef30d5c.chunk.js.map",
     "index.html": "/schedule-hub/index.html",
-    "precache-manifest.52b278019c4540263435d150aa04c071.js": "/schedule-hub/precache-manifest.52b278019c4540263435d150aa04c071.js",
+    "precache-manifest.9d37557dbe82dd10c3edb26d81e4a0a8.js": "/schedule-hub/precache-manifest.9d37557dbe82dd10c3edb26d81e4a0a8.js",
     "service-worker.js": "/schedule-hub/service-worker.js",
-    "static/js/2.8ba9816c.chunk.js.LICENSE": "/schedule-hub/static/js/2.8ba9816c.chunk.js.LICENSE",
+    "static/js/2.5ef30d5c.chunk.js.LICENSE": "/schedule-hub/static/js/2.5ef30d5c.chunk.js.LICENSE",
     "static/media/calendar-step-1.png": "/schedule-hub/static/media/calendar-step-1.5a0cc442.png",
     "static/media/calendar-step-2.png": "/schedule-hub/static/media/calendar-step-2.514203ac.png",
     "static/media/icon.svg": "/schedule-hub/static/media/icon.47f3ae83.svg"
   },
   "entrypoints": [
     "static/js/runtime-main.d991c7a0.js",
-    "static/js/2.8ba9816c.chunk.js",
-    "static/js/main.56b577ea.chunk.js"
+    "static/js/2.5ef30d5c.chunk.js",
+    "static/js/main.fdd80dc2.chunk.js"
   ]
 }
