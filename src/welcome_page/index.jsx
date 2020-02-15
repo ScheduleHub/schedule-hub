@@ -10,7 +10,7 @@ import { blue } from '@material-ui/core/colors';
 import axios from 'axios';
 import CourseItem from 'components/CourseItem';
 import {
-  getCourseCode, formatPostData, isOnline, perm,
+  getCourseCode, formatPostData, isOnline,
 } from 'utils/courses';
 import UWAPI from 'utils/uwapi';
 import logo from 'res/icon.svg';
@@ -95,7 +95,7 @@ function WelcomePage() {
   const [currentCourses, setCurrentCourses] = useState([]);
 
   // UI states
-  const [editCourseModalOpen, setEditCourseModalOpen] = useState(false); // modalShow
+  const [editCourseModalOpen, setEditCourseModalOpen] = useState(true); // modalShow
   const [fullPageLoading, setFullPageLoading] = useState(false);
   const [snackbarOpen, setSnackbarOpen] = useState(false);
   const [snackbarSeverity, setSnackbarSeverity] = useState(''); // snackbarTheme
@@ -282,11 +282,6 @@ function WelcomePage() {
 
   const handleViewScheduleClick = async () => {
     const data = formatPostData(currentCourses, currentClasses, coursesInfo);
-    // if (perm(data.filtered_courses).length > 200000) {
-    //   showSnackbar('warning', 'Try locking some of your courses or reduce the number of courses.', 'Too many course combinations');
-    //   // TODO: longer timeout
-    //   return;
-    // }
     console.log(data);
     const url = 'https://qemn8c6rx9.execute-api.us-east-2.amazonaws.com/test/getrandomschedule';
     try {
