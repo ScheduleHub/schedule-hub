@@ -1,4 +1,6 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, {
+  useState, useEffect, useRef,
+} from 'react';
 import {
   Button, TextField, Typography, Grid, Modal, Link, List,
   Card, CardContent, CardHeader, CardMedia, Paper, CssBaseline,
@@ -22,6 +24,7 @@ import step2 from 'res/calendar-step-2.png';
 import _ from 'lodash';
 import { Close } from '@material-ui/icons';
 import HelpOutlineIcon from '@material-ui/icons/HelpOutline';
+import { navigate } from 'hookrouter';
 
 const apiKey = '4ad350333dc3859b91bcf443d14e4bf0';
 const uwapi = new UWAPI(apiKey);
@@ -199,7 +202,7 @@ PreferenceSlider.propTypes = {
   handleSliderValueChange: PropTypes.func.isRequired,
 };
 
-function WelcomePage() {
+function WelcomePage(props) {
   // Data states
   const [coursesInfo, setCoursesInfo] = useState([]); // courseInfo
   const [availSubjects, setAvailSubjects] = useState([]); // allSubjects
@@ -398,6 +401,7 @@ function WelcomePage() {
   };
 
   const handleViewScheduleClick = async () => {
+    setFullPageLoading(true);
     const data = formatPostData(currentCourses, currentClasses, coursesInfo);
     if (perm(data.filtered_courses).length > 200000) {
       showSnackbar('warning', 'Try locking some of your courses or reduce the number of courses.', 'Too many course combinations');
@@ -407,7 +411,9 @@ function WelcomePage() {
     const url = 'https://qemn8c6rx9.execute-api.us-east-2.amazonaws.com/test/handleschedulerequest';
     try {
       const response = await axios.post(url, data, { timeout: 15000 });
-      console.log(response);
+      props.setResult(response.data);
+      setFullPageLoading(false);
+      navigate('/result');
     } catch (error) {
       if (error.message.startsWith('timeout')) {
         showSnackbar('error', 'Network Timeout');
@@ -435,6 +441,7 @@ function WelcomePage() {
 
   return (
     <ThemeProvider theme={theme}>
+
       <CssBaseline />
       <Snackbar
         open={snackbarOpen}
@@ -460,9 +467,9 @@ function WelcomePage() {
               <CardHeader title="Step 1" className={classes.header} />
               <CardContent>
                 <Typography variant="body1">
-                  Go to&nbsp;
+                    Go to&nbsp;
                   <Link href="https://quest.pecs.uwaterloo.ca/psp/SS/ACADEMIC/SA/?cmd=login&languageCd=ENG" target="_blank">Quest</Link>
-                  , click &quot;Class Schedule&quot;.
+                    , click &quot;Class Schedule&quot;.
                 </Typography>
               </CardContent>
               <CardMedia
@@ -566,7 +573,7 @@ function WelcomePage() {
                     options={availSubjects}
                     renderInput={(params) => (
                       <TextField
-                        // eslint-disable-next-line react/jsx-props-no-spreading
+                          // eslint-disable-next-line react/jsx-props-no-spreading
                         {...params}
                         label="Subject"
                         variant="outlined"
@@ -593,7 +600,7 @@ function WelcomePage() {
                     getOptionLabel={(option) => option}
                     renderInput={(params) => (
                       <TextField
-                        // eslint-disable-next-line react/jsx-props-no-spreading
+                          // eslint-disable-next-line react/jsx-props-no-spreading
                         {...params}
                         label="Course number"
                         variant="outlined"
@@ -615,7 +622,7 @@ function WelcomePage() {
                       className={classes.marginLeft}
                       disabled={addCourseLoading}
                     >
-                      Add Course
+                        Add Course
                     </Button>
                   </Box>
                   <Box paddingTop={2} px={1}>
@@ -657,7 +664,7 @@ function WelcomePage() {
                 onClick={handleViewScheduleClick}
                 disabled={addCourseLoading}
               >
-                View Recommended Schedules
+  View Recommended Scheudles
               </Button>
             </Box>
           </Paper>

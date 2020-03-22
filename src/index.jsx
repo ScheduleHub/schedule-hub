@@ -1,5 +1,30 @@
-import React from 'react';
+import React, { useState } from 'react';
 import ReactDOM from 'react-dom';
+import { useRoutes, navigate } from 'hookrouter';
+import NonExistentPage from './non_existent_page/index';
 import WelcomePage from './welcome_page/index';
+import ResultPage from './result_page/index';
+import ResultNotFoundPage from './result_not_found_page/index';
 
-ReactDOM.render(<WelcomePage />, document.getElementById('root'));
+function App() {
+  const [result, setResult] = useState(null);
+  const handleResultChange = (newVal) => {
+    setResult(newVal);
+  };
+  const router = {
+    '/': () => <WelcomePage setResult={handleResultChange} />,
+    '/result': () => <ResultPage schedules={result} />,
+    '/result-not-found': () => <ResultNotFoundPage />,
+  };
+  const routeResult = useRoutes(router);
+  if (!routeResult) {
+    return <NonExistentPage />;
+  }
+  if (routeResult.type.name === 'ResultPage') {
+    if (result === null) {
+      navigate('/result-not-found');
+    }
+  }
+  return routeResult;
+}
+ReactDOM.render(<App />, document.getElementById('root'));
