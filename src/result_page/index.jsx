@@ -3,6 +3,7 @@ import PropTypes from 'prop-types';
 import {
   AppBar,
   Backdrop,
+  Box,
   CircularProgress,
   Tab,
   Tabs,
@@ -16,6 +17,7 @@ import {
 import { blue, pink, green } from '@material-ui/core/colors';
 import axios from 'axios';
 import UWAPI from 'utils/uwapi';
+import Timetable from 'components/Timetable';
 // import { useRoutes, navigate } from 'hookrouter';
 // import WelcomePage from '../welcome_page/index';
 
@@ -43,9 +45,33 @@ const shTheme = createMuiTheme({
 });
 
 const useStyles = makeStyles((theme) => ({
+  root: {
+    display: 'flex',
+    flexDirection: 'column',
+    height: '100%',
+    overflowY: 'hidden',
+  },
+  contents: {
+    // display: 'flex',
+    // flexDirection: 'column',
+    flexGrow: 0,
+    overflow: 'hidden',
+    padding: theme.spacing(2),
+    [theme.breakpoints.down('xs')]: {
+      padding: 0,
+    },
+  },
   loadingFullPage: {
     zIndex: theme.zIndex.drawer + 1,
     color: '#fff',
+  },
+  timetableBox: {
+    display: 'inline-block',
+    maxWidth: '100%',
+    maxHeight: '100%',
+    alignSelf: 'flex-start',
+    overflow: 'auto',
+    border: `2px solid ${theme.palette.divider}`,
   },
 }));
 
@@ -110,12 +136,18 @@ function ResultPage(props) {
     <ThemeProvider theme={shTheme}>
       <CssBaseline />
 
-      <div>
-        <AppBar position="static" color="primary">
+      <div className={classes.root}>
+        <AppBar position="static" color="default">
           <Toolbar>
             <Typography variant="h6">Your Recommended Schedules</Typography>
           </Toolbar>
-          <Tabs value={selectedSchedIndex} onChange={handleTabsChange}>
+          <Tabs
+            value={selectedSchedIndex}
+            textColor="primary"
+            indicatorColor="primary"
+            variant="scrollable"
+            onChange={handleTabsChange}
+          >
             {schedules.map((_, index) => (
               <Tab label={`Schedule ${index + 1}`} />
             ))}
@@ -125,12 +157,11 @@ function ResultPage(props) {
         <Backdrop open={!classesInfo[selectedSchedIndex]} className={classes.loadingFullPage}>
           <CircularProgress color="inherit" />
         </Backdrop>
-
-        {schedules.map((sched, index) => (
-          <Typography>
-            {`Item ${index}`}
-          </Typography>
-        ))}
+        <div className={classes.contents}>
+          <Box className={classes.timetableBox}>
+            <Timetable schedule={classesInfo[selectedSchedIndex]} />
+          </Box>
+        </div>
       </div>
     </ThemeProvider>
   );

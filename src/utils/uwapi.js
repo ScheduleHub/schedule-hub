@@ -90,11 +90,21 @@ class UWAPI {
    * @param {string[]} courseCodeList the list of courses to get schedules for.
    * @param {number} term the term to get schedules for.
    */
-  getCourseScheduleMulti = (courseCodeList, term = undefined) => {
+  getCourseScheduleBulk = (courseCodeList, term = undefined) => {
     const urlList = courseCodeList.map((code) => {
       const [sub, cata] = code.split(' ');
       return `/courses/${sub}/${cata}/schedule.json`;
     });
+    return this.sendBulkUrlRequest(urlList, { term });
+  }
+
+  /**
+   * Returns the schedules of multiple classes.
+   * @param {number[]} classNumberList the list of classes to get schedules for.
+   * @param {number} term the term to get schedules for.
+   */
+  getClassScheduleBulk = (classNumberList, term = undefined) => {
+    const urlList = classNumberList.map((classNum) => `/courses/${classNum}/schedule.json`);
     return this.sendBulkUrlRequest(urlList, { term });
   }
 }

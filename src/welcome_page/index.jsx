@@ -31,6 +31,9 @@ const uwapi = new UWAPI(apiKey);
 // TODO: terms
 
 const useStyles = makeStyles((theme) => ({
+  root: {
+    height: '100%',
+  },
   addCourseInput: {
     marginBottom: theme.spacing(2),
   },
@@ -67,11 +70,11 @@ const useStyles = makeStyles((theme) => ({
   logoWrap: {
     display: 'flex',
     justifyContent: 'center',
-    marginTop: theme.spacing(4),
-    marginBottom: theme.spacing(4),
+    paddingTop: theme.spacing(4),
+    paddingBottom: theme.spacing(4),
     [theme.breakpoints.down('xs')]: {
-      marginTop: theme.spacing(2),
-      marginBottom: theme.spacing(2),
+      paddingTop: theme.spacing(2),
+      paddingBottom: theme.spacing(2),
     },
   },
   icon: {
@@ -276,7 +279,7 @@ function WelcomePage(props) {
   };
 
   const loadCourseInfo = async (courseNames, classNumbers) => {
-    const promises = uwapi.getCourseScheduleMulti(courseNames);
+    const promises = uwapi.getCourseScheduleBulk(courseNames);
     setFullPageLoading(true);
     axios.all(promises).then((values) => {
       const courseInfo = values.map((value) => value.data.data);
@@ -441,7 +444,6 @@ function WelcomePage(props) {
 
   return (
     <ThemeProvider theme={theme}>
-
       <CssBaseline />
       <Snackbar
         open={snackbarOpen}
@@ -454,72 +456,74 @@ function WelcomePage(props) {
           {snackbarText}
         </Alert>
       </Snackbar>
-      <div className={classes.logoWrap}>
-        <img src={icon} alt="" className={classes.icon} />
-        <img src={logo} alt="ScheduleHub" className={classes.logo} />
-      </div>
 
+      <div className={classes.root}>
+        <div className={classes.logoWrap}>
+          <img src={icon} alt="" className={classes.icon} />
+          <img src={logo} alt="ScheduleHub" className={classes.logo} />
+        </div>
 
-      <Container className={classes.gridContainer} maxWidth="lg">
-        <Grid container justify="center" spacing={4}>
-          <Grid item xs={12} sm={10} md>
-            <Card raised>
-              <CardHeader title="Step 1" className={classes.header} />
-              <CardContent>
-                <Typography variant="body1">
+        <Container className={classes.gridContainer} maxWidth="lg">
+          <Grid container justify="center" spacing={4}>
+            <Grid item xs={12} sm={10} md>
+              <Card raised>
+                <CardHeader title="Step 1" className={classes.header} />
+                <CardContent>
+                  <Typography variant="body1">
                     Go to&nbsp;
-                  <Link href="https://quest.pecs.uwaterloo.ca/psp/SS/ACADEMIC/SA/?cmd=login&languageCd=ENG" target="_blank">Quest</Link>
+                    <Link href="https://quest.pecs.uwaterloo.ca/psp/SS/ACADEMIC/SA/?cmd=login&languageCd=ENG" target="_blank">Quest</Link>
                     , click &quot;Class Schedule&quot;.
-                </Typography>
-              </CardContent>
-              <CardMedia
-                image={step1}
-                title="Go to Class Schedule"
-                className={classes.stepImage}
-              />
-            </Card>
-          </Grid>
-          <Grid item xs={12} sm={10} md>
-            <Card className={`${classes.flexContainer} ${classes.fullHeight}`} raised>
-              <CardHeader title="Step 2" className={classes.header} />
-              <CardContent>
-                <Typography variant="body1">Select all and copy.</Typography>
-              </CardContent>
-              <CardMedia
-                image={step2}
-                title="Select All and Copy"
-                className={`${classes.stepImage} ${classes.stickBottom}`}
-              />
-            </Card>
-          </Grid>
-          <Grid item xs={12} sm={10} md>
-            <Card className={`${classes.flexContainer} ${classes.fullHeight}`} raised>
-              <CardHeader title="Step 3" className={classes.header} />
-              <CardContent className={`${classes.flexContainer} ${classes.flexGrow}`}>
-                <Box mb={2}>
-                  <Typography variant="body1">Paste into the box below.</Typography>
-                </Box>
-                <TextField
-                  className={classes.flexGrow}
-                  value={scheduleImportInput}
-                  onPaste={(e) => handlePaste(e.clipboardData.getData('text/plain'))}
-                  multiline
-                  required
-                  variant="outlined"
-                  fullWidth
-                  rows={12}
-                  InputProps={{
-                    className: classes.fullHeight,
-                  }}
-                  inputProps={{
-                    className: classes.fullHeight,
-                  }}
+                  </Typography>
+                </CardContent>
+                <CardMedia
+                  image={step1}
+                  title="Go to Class Schedule"
+                  className={classes.stepImage}
                 />
-              </CardContent>
-            </Card>
+              </Card>
+            </Grid>
+            <Grid item xs={12} sm={10} md>
+              <Card className={`${classes.flexContainer} ${classes.fullHeight}`} raised>
+                <CardHeader title="Step 2" className={classes.header} />
+                <CardContent>
+                  <Typography variant="body1">Select all and copy.</Typography>
+                </CardContent>
+                <CardMedia
+                  image={step2}
+                  title="Select All and Copy"
+                  className={`${classes.stepImage} ${classes.stickBottom}`}
+                />
+              </Card>
+            </Grid>
+            <Grid item xs={12} sm={10} md>
+              <Card className={`${classes.flexContainer} ${classes.fullHeight}`} raised>
+                <CardHeader title="Step 3" className={classes.header} />
+                <CardContent className={`${classes.flexContainer} ${classes.flexGrow}`}>
+                  <Box mb={2}>
+                    <Typography variant="body1">Paste into the box below.</Typography>
+                  </Box>
+                  <TextField
+                    className={classes.flexGrow}
+                    value={scheduleImportInput}
+                    onPaste={(e) => handlePaste(e.clipboardData.getData('text/plain'))}
+                    multiline
+                    required
+                    variant="outlined"
+                    fullWidth
+                    rows={12}
+                    InputProps={{
+                      className: classes.fullHeight,
+                    }}
+                    inputProps={{
+                      className: classes.fullHeight,
+                    }}
+                  />
+                </CardContent>
+              </Card>
+            </Grid>
           </Grid>
-        </Grid>
-      </Container>
+        </Container>
+      </div>
 
       <Modal
         open={editCourseModalOpen}
@@ -664,7 +668,7 @@ function WelcomePage(props) {
                 onClick={handleViewScheduleClick}
                 disabled={addCourseLoading}
               >
-  View Recommended Scheudles
+                View Recommended Scheudles
               </Button>
             </Box>
           </Paper>

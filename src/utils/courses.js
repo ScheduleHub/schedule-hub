@@ -1,3 +1,4 @@
+/* eslint-disable camelcase */
 import _ from 'lodash';
 
 /**
@@ -127,6 +128,40 @@ const formatPostData = (currentCourses, currentClasses, courseInfo) => {
   };
 };
 
+/**
+ * Parses a ClassInfo object into an array of time blocks.
+ * @param {ClassInfo} classInfo the ClassInfo object to parse.
+ */
+const parseTime = (classInfo) => {
+  const week = ['Th', 'M', 'T', 'W', 'F'];
+  const { subject, catalog_number, section } = classInfo;
+  const [sectionType, sectionNum] = section.split(' ');
+  return classInfo.classes.map((c) => {
+    const {
+      start_date, end_date, start_time, end_time,
+    } = c.date;
+    let { weekdays } = c.date;
+    if (start_date || end_date) return [];
+    const blocks = [];
+    week.forEach((day) => {
+      if (weekdays.includes(day)) {
+        blocks.push({
+          day,
+          startTime: start_time,
+          endTime: end_time,
+          blockInfo: {
+            courseCode: `${subject} ${catalog_number}`,
+            sectionType,
+            sectionNum,
+          },
+        });
+        weekdays = weekdays.replace(day, '');
+      }
+    });
+    return blocks;
+  }).flat();
+};
+
 const prepend = (i, lol) => lol.map((lst) => [i].concat(lst));
 
 const permHelper = (lol) => (!lol.length
@@ -142,4 +177,5 @@ export {
   getCourseCode,
   isOnline,
   perm,
+  parseTime,
 };

@@ -5,6 +5,7 @@ import NonExistentPage from './non_existent_page/index';
 import WelcomePage from './welcome_page/index';
 import ResultPage from './result_page/index';
 import ResultNotFoundPage from './result_not_found_page/index';
+import './index.css';
 
 function App() {
   const [result, setResult] = useState(null);
