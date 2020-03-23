@@ -6,7 +6,7 @@ import {
   Card, CardContent, CardHeader, CardMedia, Paper, CssBaseline,
   Divider, Snackbar, Fade, Backdrop, createMuiTheme, ThemeProvider,
   Box, CircularProgress, Container, makeStyles, Hidden, IconButton,
-  AppBar, Toolbar, Tooltip, Slider, Popover,
+  AppBar, Toolbar, Tooltip, Slider, Popover, LinearProgress,
 } from '@material-ui/core';
 import PropTypes from 'prop-types';
 import { Autocomplete, Alert, AlertTitle } from '@material-ui/lab';
@@ -127,7 +127,7 @@ const theme = createMuiTheme({
 
 function PreferenceSlider(props) {
   const {
-    label, helpMsg, leftLabel, rightLabel, sliderValue, handleSliderValueChange,
+    label, helpMsg, leftLabel, rightLabel, sliderValue, handleSliderValueChange, disabled,
   } = props;
 
   const classes = useStyles();
@@ -186,6 +186,7 @@ function PreferenceSlider(props) {
             display="inline"
             value={sliderValue}
             onChange={(e, v) => handleSliderValueChange(e, v)}
+            disabled={disabled}
           />
         </Grid>
         <Grid item>
@@ -203,6 +204,7 @@ PreferenceSlider.propTypes = {
   rightLabel: PropTypes.string.isRequired,
   sliderValue: PropTypes.number.isRequired,
   handleSliderValueChange: PropTypes.func.isRequired,
+  disabled: PropTypes.bool.isRequired,
 };
 
 function WelcomePage(props) {
@@ -223,7 +225,8 @@ function WelcomePage(props) {
   const [scheduleImportInput, setScheduleImportInput] = useState(''); // rawCourses
   const [addCourseSubjectInput, setAddCourseSubjectInput] = useState(''); // subjectBox
   const [addCourseNumberInput, setAddCourseNumberInput] = useState(''); // courseNumberBox
-  const [addCourseLoading, setAddCourseLoading] = useState(false);
+  const [addingCourse, setAddingCourse] = useState(false);
+  const [waitingResult, setWaitingResult] = useState(false);
   const [firstClassSliderValue, setFirstClassSliderValue] = useState(50);
   const [evenDistSliderValue, setEvenDistSliderValue] = useState(50);
   const [clusterClassSliderValue, setClusterClassSliderValue] = useState(50);
@@ -234,6 +237,7 @@ function WelcomePage(props) {
   // Material UI styles
   const classes = useStyles();
 
+  const baseUrl = `${process.env.PUBLIC_URL}/`;
 
   const showSnackbar = (severity, text, title) => {
     setSnackbarSeverity(severity);
@@ -361,12 +365,12 @@ function WelcomePage(props) {
     if (!addCourseSubjectInput || !addCourseNumberInput) {
       return;
     }
-    setAddCourseLoading(true);
+    setAddingCourse(true);
     const courseCode = `${addCourseSubjectInput} ${addCourseNumberInput}`;
     const newCurrentCourses = currentCourses.slice();
     if (newCurrentCourses.some((item) => courseCode === item.courseCode)) {
       showSnackbar('info', `${courseCode} is already in your schedule.`);
-      setAddCourseLoading(false);
+      setAddingCourse(false);
       return;
     }
 
@@ -399,12 +403,12 @@ function WelcomePage(props) {
         showSnackbar('error', error.message);
       }
     } finally {
-      setAddCourseLoading(false);
+      setAddingCourse(false);
     }
   };
 
   const handleViewScheduleClick = async () => {
-    setFullPageLoading(true);
+    setWaitingResult(true);
     const data = formatPostData(currentCourses, currentClasses, coursesInfo);
     if (perm(data.filtered_courses).length > 200000) {
       showSnackbar('warning', 'Try locking some of your courses or reduce the number of courses.', 'Too many course combinations');
@@ -415,14 +419,17 @@ function WelcomePage(props) {
     try {
       const response = await axios.post(url, data, { timeout: 15000 });
       props.setResult(response.data);
-      setFullPageLoading(false);
-      navigate('/schedule-hub/result');
+      setWaitingResult(false);
+      navigate(`${baseUrl}result/`);
     } catch (error) {
       if (error.message.startsWith('timeout')) {
         showSnackbar('error', 'Network Timeout');
+      } else if (error.response) {
+        showSnackbar('error', error.response.data);
       } else {
         showSnackbar('error', error.message);
       }
+      setWaitingResult(false);
     }
   };
 
@@ -542,7 +549,7 @@ function WelcomePage(props) {
               <Toolbar>
                 <Typography variant="h6" className={classes.flexGrow}>Edit my courses</Typography>
                 <Tooltip title="Close">
-                  <IconButton aria-label="close" onClick={closeEditCourseModal}>
+                  <IconButton aria-label="close" onClick={closeEditCourseModal} disabled={waitingResult}>
                     <Close />
                   </IconButton>
                 </Tooltip>
@@ -552,7 +559,9 @@ function WelcomePage(props) {
               <Grid item xs={12} sm>
                 <List className={classes.currentCoursesList}>
                   {currentCourses.map((item) => {
-                    const { courseCode, keepable, keep } = item;
+                    const {
+                      courseCode, keepable, keep,
+                    } = item;
                     return (
                       <CourseItem
                         key={courseCode}
@@ -561,6 +570,7 @@ function WelcomePage(props) {
                         keep={keep}
                         onDropClick={() => dropCourse(courseCode)}
                         onKeepClick={() => handleKeepCourseClick(courseCode)}
+                        disabled={waitingResult}
                       />
                     );
                   })}
@@ -596,6 +606,7 @@ function WelcomePage(props) {
                       }
                     }}
                     value={addCourseSubjectInput}
+                    disabled={waitingResult}
                   />
                   <Autocomplete
                     className={classes.addCourseInput}
@@ -616,15 +627,16 @@ function WelcomePage(props) {
                       setAddCourseNumberInput(value);
                     }}
                     value={addCourseNumberInput}
+                    disabled={waitingResult}
                   />
                   <Box mx={0} display="flex" alignItems="center" justifyContent="flex-end">
-                    {addCourseLoading && <CircularProgress size={36 / Math.sqrt(2)} />}
+                    {addingCourse && <CircularProgress size={36 / Math.sqrt(2)} />}
                     <Button
                       color="primary"
                       variant="outlined"
                       onClick={handleAddClick}
                       className={classes.marginLeft}
-                      disabled={addCourseLoading}
+                      disabled={addingCourse || waitingResult}
                     >
                         Add Course
                     </Button>
@@ -637,6 +649,7 @@ function WelcomePage(props) {
                       rightLabel="Late"
                       sliderValue={firstClassSliderValue}
                       handleSliderValueChange={handleFirstClassSliderChange}
+                      disabled={waitingResult}
                     />
                     <PreferenceSlider
                       label="Even Distribution"
@@ -645,6 +658,7 @@ function WelcomePage(props) {
                       rightLabel="Uneven"
                       sliderValue={evenDistSliderValue}
                       handleSliderValueChange={handleEvenDistSliderChange}
+                      disabled={waitingResult}
                     />
                     <PreferenceSlider
                       label="Cluster Classes"
@@ -653,23 +667,25 @@ function WelcomePage(props) {
                       rightLabel="Separate"
                       sliderValue={clusterClassSliderValue}
                       handleSliderValueChange={handleClusterClassSliderChange}
+                      disabled={waitingResult}
                     />
                   </Box>
                 </Box>
               </Grid>
             </Grid>
             <Divider />
-            <Box p={2}>
+            <Box p={1}>
               <Button
                 size="large"
                 variant="contained"
                 color="primary"
                 fullWidth
                 onClick={handleViewScheduleClick}
-                disabled={addCourseLoading}
+                disabled={addingCourse || waitingResult}
               >
                 View Recommended Scheudles
               </Button>
+              {waitingResult && <LinearProgress />}
             </Box>
           </Paper>
         </Fade>
@@ -683,4 +699,9 @@ function WelcomePage(props) {
     </ThemeProvider>
   );
 }
+
+WelcomePage.propTypes = {
+  setResult: PropTypes.func.isRequired,
+};
+
 export default WelcomePage;

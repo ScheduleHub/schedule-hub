@@ -7,7 +7,7 @@ class UWAPI {
    * Creates a new UWAPI instance.
    * @param {string} apiKey the API key.
    */
-  constructor(apiKey, timeout = 6000) {
+  constructor(apiKey, timeout = 10000) {
     this.apiKey = apiKey;
     this.timeout = timeout;
   }

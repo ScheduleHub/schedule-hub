@@ -25,7 +25,7 @@ function App() {
   }
   if (routeResult.type.name === 'ResultPage') {
     if (result === null) {
-      navigate('/schedule-hub/result-not-found');
+      navigate(`${baseUrl}result-not-found/`);
     }
   }
   return routeResult;
