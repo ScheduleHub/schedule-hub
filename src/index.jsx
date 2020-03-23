@@ -12,10 +12,12 @@ function App() {
   const handleResultChange = (newVal) => {
     setResult(newVal);
   };
+
+  const baseUrl = `${process.env.PUBLIC_URL}/`;
   const router = {
-    '/schedule-hub': () => <WelcomePage setResult={handleResultChange} />,
-    '/schedule-hub/result': () => <ResultPage schedules={result} />,
-    '/schedule-hub/result-not-found': () => <ResultNotFoundPage />,
+    [baseUrl]: () => <WelcomePage setResult={handleResultChange} />,
+    [`${baseUrl}result/`]: () => <ResultPage schedules={result} />,
+    [`${baseUrl}result-not-found/`]: () => <ResultNotFoundPage />,
   };
   const routeResult = useRoutes(router);
   if (!routeResult) {
@@ -23,7 +25,7 @@ function App() {
   }
   if (routeResult.type.name === 'ResultPage') {
     if (result === null) {
-      navigate('/result-not-found');
+      navigate('/schedule-hub/result-not-found');
     }
   }
   return routeResult;
