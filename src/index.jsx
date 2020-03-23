@@ -13,9 +13,9 @@ function App() {
     setResult(newVal);
   };
   const router = {
-    '/': () => <WelcomePage setResult={handleResultChange} />,
-    '/result': () => <ResultPage schedules={result} />,
-    '/result-not-found': () => <ResultNotFoundPage />,
+    '/schedule-hub': () => <WelcomePage setResult={handleResultChange} />,
+    '/schedule-hub/result': () => <ResultPage schedules={result} />,
+    '/schedule-hub/result-not-found': () => <ResultNotFoundPage />,
   };
   const routeResult = useRoutes(router);
   if (!routeResult) {

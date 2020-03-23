@@ -416,7 +416,7 @@ function WelcomePage(props) {
       const response = await axios.post(url, data, { timeout: 15000 });
       props.setResult(response.data);
       setFullPageLoading(false);
-      navigate('/result');
+      navigate('/schedule-hub/result');
     } catch (error) {
       if (error.message.startsWith('timeout')) {
         showSnackbar('error', 'Network Timeout');
