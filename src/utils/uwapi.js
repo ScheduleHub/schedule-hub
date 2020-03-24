@@ -1,6 +1,6 @@
 import axios from 'axios';
 
-const rootUrl = 'https://api.uwaterloo.ca/v2';
+const ROOT_URL = 'https://api.uwaterloo.ca/v2';
 
 class UWAPI {
   /**
@@ -19,7 +19,7 @@ class UWAPI {
    */
   sendUrlRequest = async (url, params = {}) => {
     const response = await axios.get(url, {
-      baseURL: rootUrl,
+      baseURL: ROOT_URL,
       params: {
         ...params,
         key: this.apiKey,
@@ -43,7 +43,7 @@ class UWAPI {
    */
   sendBulkUrlRequest = (urlList, params = {}) => {
     const instance = axios.create({
-      baseURL: rootUrl,
+      baseURL: ROOT_URL,
       timeout: this.timeout,
       timeoutErrorMessage: `timeout ${this.timeout}`,
     });
@@ -63,6 +63,29 @@ class UWAPI {
     const subjects = await this.sendUrlRequest('/codes/subjects.json');
     return subjects.map((item) => item.subject);
   }
+
+  /**
+   * Returns current_term, previous_term, and next_term information
+   */
+  getTermsInfo = async () => {
+    const termsInfo = await this.sendUrlRequest('/terms/list.json');
+    const result = {};
+    const getTermName = (termCode) => {
+      const digitToSeason = {
+        1: 'Winter',
+        5: 'Spring',
+        9: 'Fall',
+      };
+      return `${digitToSeason[termCode[3]]} ${19 + parseInt(termCode[0], 10)}${termCode.substring(1, 3)}`;
+    };
+    result.current_term = [termsInfo.current_term,
+      getTermName(termsInfo.current_term.toString())];
+    result.previous_term = [termsInfo.previous_term,
+      getTermName(termsInfo.previous_term.toString())];
+    result.next_term = [termsInfo.next_term,
+      getTermName(termsInfo.next_term.toString())];
+    return result;
+  };
 
   /**
    * Returns all available catalog numbers (course numbers) for a subject.

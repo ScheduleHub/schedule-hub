@@ -6,34 +6,32 @@ import {
   Card, CardContent, CardHeader, CardMedia, Paper, CssBaseline,
   Divider, Snackbar, Fade, Backdrop, createMuiTheme, ThemeProvider,
   Box, CircularProgress, Container, makeStyles, Hidden, IconButton,
-  AppBar, Toolbar, Tooltip, Slider, Popover, LinearProgress,
+  AppBar, Toolbar, Tooltip, Slider, Popover, LinearProgress, Menu, MenuItem,
 } from '@material-ui/core';
-import PropTypes from 'prop-types';
+import PropTypes, { oneOfType } from 'prop-types';
 import { Autocomplete, Alert, AlertTitle } from '@material-ui/lab';
 import { blue } from '@material-ui/core/colors';
 import axios from 'axios';
 import CourseItem from 'components/CourseItem';
 import {
+  // eslint-disable-next-line no-unused-vars
   getCourseCode, formatPostData, isOnline, perm,
 } from 'utils/courses';
 import UWAPI from 'utils/uwapi';
 import icon from 'res/icon.svg';
+import appBarIcon from 'res/icon-white.svg';
 import logo from 'res/schedule-hub.png';
 import step1 from 'res/calendar-step-1.png';
 import step2 from 'res/calendar-step-2.png';
 import _ from 'lodash';
 import { Close } from '@material-ui/icons';
 import HelpOutlineIcon from '@material-ui/icons/HelpOutline';
-import { navigate } from 'hookrouter';
+import ExpandMoreIcon from '@material-ui/icons/ExpandMore';
+import { useHistory } from 'react-router-dom';
 
 const API_KEY = '4ad350333dc3859b91bcf443d14e4bf0';
 
-const BASE_URL = `${process.env.PUBLIC_URL}/`;
-
-const TERM = 1205; // Spring 2020
-
 const uwapi = new UWAPI(API_KEY);
-// TODO: terms
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -90,6 +88,11 @@ const useStyles = makeStyles((theme) => ({
       height: 72,
     },
   },
+  appBarIcon: {
+    height: 30,
+    marginLeft: theme.spacing(0.5),
+    marginRight: theme.spacing(1),
+  },
   logo: {
     alignSelf: 'flex-end',
     height: 40,
@@ -111,6 +114,11 @@ const useStyles = makeStyles((theme) => ({
   },
   editButton: {
     width: '200px',
+  },
+  termBtn: {
+    fontSize: '18px',
+    color: 'white',
+    textTransform: 'none',
   },
 }));
 
@@ -216,14 +224,9 @@ PreferenceSlider.propTypes = {
 };
 
 function WelcomePage(props) {
-  // Data states
-  const [coursesInfo, setCoursesInfo] = useState([]); // courseInfo
-  const [availSubjects, setAvailSubjects] = useState([]); // allSubjects
-  const [availCourseNumbers, setAvailCourseNumbers] = useState([]); // courseNumbers
-  const [currentClasses, setCurrentClasses] = useState([]);
-  const [currentCourses, setCurrentCourses] = useState([]);
-
   // UI states
+  const [anchorEl, setAnchorEl] = useState(null);
+  const termMenuOpen = Boolean(anchorEl);
   const [editBtnText, setEditBtnText] = useState('Edit Manually');
   const [editCourseModalOpen, setEditCourseModalOpen] = useState(false); // modalShow
   const [fullPageLoading, setFullPageLoading] = useState(false);
@@ -240,11 +243,32 @@ function WelcomePage(props) {
   const [evenDistSliderValue, setEvenDistSliderValue] = useState(50);
   const [clusterClassSliderValue, setClusterClassSliderValue] = useState(50);
 
+  const {
+    currentTermName,
+    currentTermCode,
+    coursesInfo,
+    availSubjects,
+    termsInfo,
+    availCourseNumbers,
+    currentClasses,
+    currentCourses,
+    setCurrentTermName,
+    setCurrentTermCode,
+    setCoursesInfo,
+    setAvailSubjects,
+    setTermsInfo,
+    setAvailCourseNumbers,
+    setCurrentClasses,
+    setCurrentCourses,
+    setResult,
+  } = props;
   // Refs
   const addCourseNumberInputRef = useRef(); // courseNumberBoxRef
 
   // Material UI styles
   const classes = useStyles();
+
+  const history = useHistory();
 
   const showSnackbar = (severity, text, title = '') => {
     setSnackbarSeverity(severity);
@@ -260,6 +284,20 @@ function WelcomePage(props) {
     setSnackbarOpen(false);
   };
 
+  useEffect(() => {
+    const loadTermsInfo = async () => {
+      try {
+        const terms = await uwapi.getTermsInfo();
+        setTermsInfo(terms);
+        setCurrentTermCode(terms.current_term[0]);
+        setCurrentTermName(terms.current_term[1]);
+      } catch (error) {
+        showSnackbar('error', 'Unable to load terms information.');
+      }
+    };
+    if (!currentTermCode) { loadTermsInfo(); }
+  });
+
   useEffect( // componentDidMount()
     () => {
       const loadAvailSubjects = async () => {
@@ -270,9 +308,8 @@ function WelcomePage(props) {
           showSnackbar('error', 'Unable to load courses.');
         }
       };
-      loadAvailSubjects();
+      if (availSubjects.length === 0) { loadAvailSubjects(); }
     },
-    [],
   );
 
   const isValidSchedule = (courseInfo, classNumbers) => {
@@ -290,7 +327,7 @@ function WelcomePage(props) {
   };
 
   const loadCourseInfo = async (courseNames, classNumbers) => {
-    const promises = uwapi.getCourseScheduleBulk(courseNames, TERM);
+    const promises = uwapi.getCourseScheduleBulk(courseNames, currentTermCode);
     setFullPageLoading(true);
     axios.all(promises).then((values) => {
       const courseInfo = values.map((value) => value.data.data);
@@ -381,7 +418,7 @@ function WelcomePage(props) {
 
     try {
       const classesInfo = await uwapi.getCourseSchedule(
-        addCourseSubjectInput, addCourseNumberInput, TERM,
+        addCourseSubjectInput, addCourseNumberInput, currentTermCode,
       );
       if (classesInfo.every(isOnline)) {
         const error = new Error(`${courseCode} is only available online.`);
@@ -399,7 +436,7 @@ function WelcomePage(props) {
       setCoursesInfo(newCourseInfo);
     } catch (error) {
       if (error.name === 'UW 204') {
-        showSnackbar('warning', `${courseCode} is unavailable for this term.`);
+        showSnackbar('warning', `${courseCode} is unavailable for ${currentTermName}.`);
       } else if (error.name === 'UW online') {
         showSnackbar('warning', error.message);
       } else {
@@ -419,7 +456,10 @@ function WelcomePage(props) {
     showSnackbar('info', 'Time varies depending on the combinations of your courses.', 'This may take up to a minute');
     const data = formatPostData(currentCourses, currentClasses, coursesInfo);
     // if (perm(data.filtered_courses).length > 200000) {
-    //   showSnackbar('warning', 'Sorry, currently our server cannot handle huge dataset.Try locking some of your courses or reduce the number of courses.', 'Too many course combinations');
+    //   showSnackbar('warning',
+    // eslint-disable-next-line max-len
+    //     'Sorry, currently our server cannot handle huge dataset.Try locking some of your courses or reduce the number of courses.',
+    //     'Too many course combinations');
     //   setWaitingResult(false);
     //   return;
     // }
@@ -427,9 +467,9 @@ function WelcomePage(props) {
     const url = 'https://qemn8c6rx9.execute-api.us-east-2.amazonaws.com/test/handleschedulerequest';
     try {
       const response = await axios.post(url, data, { timeout: 60000 });
-      props.setResult(response.data);
+      setResult(response.data);
       setWaitingResult(false);
-      navigate(`${BASE_URL}result/`);
+      history.push('result');
     } catch (error) {
       if (error.message.startsWith('timeout')) {
         showSnackbar('error', 'Try locking some of your courses or reduce the number of courses.', 'The operation took longer than expected');
@@ -458,6 +498,24 @@ function WelcomePage(props) {
 
   const handleClusterClassSliderChange = (event, value) => setClusterClassSliderValue(value);
 
+  const handleChangeTermBtnClick = (event) => {
+    setAnchorEl(event.currentTarget);
+  };
+
+  const handleTermMenuClose = (curTerm) => {
+    setAnchorEl(null);
+    if (curTerm[0] !== currentTermCode) {
+      setCoursesInfo([]);
+      setAvailCourseNumbers([]);
+      setCurrentClasses([]);
+      setCurrentCourses([]);
+      setResult(null);
+      setEditBtnText('Edit Manually');
+    }
+    setCurrentTermCode(curTerm[0]);
+    setCurrentTermName(curTerm[1]);
+  };
+
   return (
     <ThemeProvider theme={theme}>
       <CssBaseline />
@@ -473,13 +531,57 @@ function WelcomePage(props) {
         </Alert>
       </Snackbar>
       <div className={classes.root}>
+        <AppBar position="static" color="primary">
+          <Toolbar>
+            <img src={appBarIcon} alt="" className={classes.appBarIcon} />
+            <Typography variant="h6" style={{ flex: 1 }}>Scheudle Hub</Typography>
+            <Button
+              className={classes.termBtn}
+              onClick={handleChangeTermBtnClick}
+            >
+              {currentTermName}
+              <ExpandMoreIcon />
+            </Button>
+            <Menu
+              anchorEl={anchorEl}
+              anchorOrigin={{
+                vertical: 'top',
+                horizontal: 'right',
+              }}
+              keepMounted
+              transformOrigin={{
+                vertical: 'top',
+                horizontal: 'right',
+              }}
+              open={termMenuOpen}
+              onClose={() => setAnchorEl(null)}
+            >
+              {termsInfo.previous_term && (
+                <MenuItem onClick={() => handleTermMenuClose(termsInfo.previous_term)}>
+                  {termsInfo.previous_term[1]}
+                </MenuItem>
+              )}
+              {termsInfo.current_term && (
+                <MenuItem onClick={() => handleTermMenuClose(termsInfo.current_term)}>
+                  {termsInfo.current_term[1]}
+                </MenuItem>
+              )}
+              {termsInfo.next_term && (
+                <MenuItem onClick={() => handleTermMenuClose(termsInfo.next_term)}>
+                  {termsInfo.next_term[1]}
+                </MenuItem>
+              )}
+            </Menu>
+
+          </Toolbar>
+        </AppBar>
         <div className={classes.logoWrap}>
           <img src={icon} alt="" className={classes.icon} />
           <img src={logo} alt="ScheduleHub" className={classes.logo} />
         </div>
 
-        <Container className={classes.gridContainer} maxWidth="lg">
-          <Grid container justify="center" spacing={4}>
+        <Container maxWidth="lg">
+          <Grid container justify="center" spacing={6}>
             <Grid item xs={12} sm={10} md>
               <Card raised>
                 <CardHeader title="Step 1" className={classes.header} />
@@ -722,7 +824,31 @@ function WelcomePage(props) {
 }
 
 WelcomePage.propTypes = {
+  currentTermName: PropTypes.string.isRequired,
+  currentTermCode: PropTypes.number,
+  coursesInfo: PropTypes.arrayOf(PropTypes.arrayOf(PropTypes.object)).isRequired,
+  availSubjects: PropTypes.arrayOf(PropTypes.string).isRequired,
+  termsInfo: PropTypes.exact({
+    current_term: PropTypes.arrayOf(oneOfType([PropTypes.string, PropTypes.number])),
+    previous_term: PropTypes.arrayOf(oneOfType([PropTypes.string, PropTypes.number])),
+    next_term: PropTypes.arrayOf(oneOfType([PropTypes.string, PropTypes.number])),
+  }).isRequired,
+  availCourseNumbers: PropTypes.arrayOf(PropTypes.string).isRequired,
+  currentClasses: PropTypes.arrayOf(PropTypes.number).isRequired,
+  currentCourses: PropTypes.arrayOf(PropTypes.object).isRequired,
+  setCurrentTermName: PropTypes.func.isRequired,
+  setCurrentTermCode: PropTypes.func.isRequired,
+  setCoursesInfo: PropTypes.func.isRequired,
+  setAvailSubjects: PropTypes.func.isRequired,
+  setTermsInfo: PropTypes.func.isRequired,
+  setAvailCourseNumbers: PropTypes.func.isRequired,
+  setCurrentClasses: PropTypes.func.isRequired,
+  setCurrentCourses: PropTypes.func.isRequired,
   setResult: PropTypes.func.isRequired,
+};
+
+WelcomePage.defaultProps = {
+  currentTermCode: null,
 };
 
 export default WelcomePage;

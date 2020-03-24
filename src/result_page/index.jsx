@@ -13,7 +13,9 @@ import {
   ThemeProvider,
   createMuiTheme,
   makeStyles,
+  Snackbar,
 } from '@material-ui/core';
+import { Alert, AlertTitle } from '@material-ui/lab';
 import { blue, pink, green } from '@material-ui/core/colors';
 import axios from 'axios';
 import UWAPI from 'utils/uwapi';
@@ -22,7 +24,6 @@ import Timetable from 'components/Timetable';
 // import WelcomePage from '../welcome_page/index';
 
 const API_KEY = '4ad350333dc3859b91bcf443d14e4bf0';
-const TERM = 1205; // Spring 2020
 const uwapi = new UWAPI(API_KEY, null);
 
 const shTheme = createMuiTheme({
@@ -80,12 +81,17 @@ const useStyles = makeStyles((theme) => ({
 
 const propTypes = {
   schedules: PropTypes.arrayOf(PropTypes.arrayOf(PropTypes.number)).isRequired,
+  term: PropTypes.number.isRequired,
 };
 
 function ResultPage(props) {
-  const { schedules } = props;
+  const { schedules, term } = props;
   // UI states
   const [selectedSchedIndex, setSelectedSchedIndex] = useState(0);
+  const [snackbarOpen, setSnackbarOpen] = useState(false);
+  const [snackbarSeverity, setSnackbarSeverity] = useState(''); // snackbarTheme
+  const [snackbarTitle, setSnackbarTitle] = useState('');
+  const [snackbarText, setSnackbarText] = useState('');
 
   // Data states
   const [classesInfo, setClassesInfo] = useState(Array(schedules.length).fill(undefined));
@@ -96,12 +102,25 @@ function ResultPage(props) {
   //   '/': () => <WelcomePage />,
   // });
 
+
+  const showSnackbar = (severity, text, title = '') => {
+    setSnackbarSeverity(severity);
+    setSnackbarText(text);
+    setSnackbarTitle(title);
+    setSnackbarOpen(true);
+  };
+
+  const hideSnackbar = (event, reason) => {
+    if (reason === 'clickaway') {
+      return;
+    }
+    setSnackbarOpen(false);
+  };
+
   useEffect(
     () => {
-      console.log(schedules);
       const loadApiSchedules = (sched, index) => {
-        const start = new Date().getTime();
-        const promises = uwapi.getClassScheduleBulk(sched, TERM);
+        const promises = uwapi.getClassScheduleBulk(sched, term);
         axios.all(promises).then((values) => {
           const info = values.map((item) => item.data.data[0]);
           setClassesInfo((prevClassesInfo) => {
@@ -109,10 +128,8 @@ function ResultPage(props) {
             newClassesInfo[index] = info;
             return newClassesInfo;
           });
-          console.log(info);
-          console.log(new Date().getTime() - start);
         }).catch((error) => {
-          console.log(error);
+          showSnackbar('error', error.message);
         });
       };
 
@@ -120,12 +137,11 @@ function ResultPage(props) {
         try {
           schedules.forEach((sched, index) => loadApiSchedules(sched, index));
         } catch (error) {
-          console.log(error.message);
+          showSnackbar('error', error.message);
         }
       };
       loadSchedules();
-    },
-    [],
+    }, [schedules, term],
   );
 
   const handleTabsChange = (event, newValue) => {
@@ -138,7 +154,17 @@ function ResultPage(props) {
   return (
     <ThemeProvider theme={shTheme}>
       <CssBaseline />
-
+      <Snackbar
+        open={snackbarOpen}
+        onClose={hideSnackbar}
+        anchorOrigin={{ vertical: 'top', horizontal: 'center' }}
+        autoHideDuration={6000}
+      >
+        <Alert severity={snackbarSeverity} onClose={hideSnackbar}>
+          {snackbarTitle && <AlertTitle>{snackbarTitle}</AlertTitle>}
+          {snackbarText}
+        </Alert>
+      </Snackbar>
       <div className={classes.root}>
         <AppBar position="static" color="primary">
           <Toolbar>

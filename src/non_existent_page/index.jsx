@@ -3,8 +3,7 @@ import React from 'react';
 function NonExistentPage() {
   return (
     <div>
-      <h1>404</h1>
-      <p>Page doesn't exist</p>
+      <h1 style={{ marginLeft: '20px' }}>404 - Page Not Found</h1>
     </div>
   );
 }
