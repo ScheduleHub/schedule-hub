@@ -55,6 +55,8 @@ const useStyles = makeStyles((theme) => ({
   contents: {
     // display: 'flex',
     // flexDirection: 'column',
+    display: 'flex',
+    justifyContent: 'center',
     flexGrow: 0,
     overflow: 'hidden',
     padding: theme.spacing(2),
@@ -138,31 +140,32 @@ function ResultPage(props) {
       <CssBaseline />
 
       <div className={classes.root}>
-        <AppBar position="static" color="default">
+        <AppBar position="static" color="primary">
           <Toolbar>
             <Typography variant="h6">Your Recommended Schedules</Typography>
           </Toolbar>
-          <Tabs
-            value={selectedSchedIndex}
-            textColor="primary"
-            indicatorColor="primary"
-            variant="scrollable"
-            onChange={handleTabsChange}
-          >
-            {schedules.map((_, index) => (
-              <Tab label={`Schedule ${index + 1}`} />
-            ))}
-          </Tabs>
+          <AppBar position="static" color="default">
+            <Tabs
+              value={selectedSchedIndex}
+              textColor="primary"
+              indicatorColor="primary"
+              variant="scrollable"
+              onChange={handleTabsChange}
+            >
+              {schedules.map((_, index) => (
+                <Tab label={`Schedule ${index + 1}`} />
+              ))}
+            </Tabs>
+          </AppBar>
         </AppBar>
-
-        <Backdrop open={!classesInfo[selectedSchedIndex]} className={classes.loadingFullPage}>
-          <CircularProgress color="inherit" />
-        </Backdrop>
         <div className={classes.contents}>
           <Box className={classes.timetableBox}>
             <Timetable schedule={classesInfo[selectedSchedIndex]} />
           </Box>
         </div>
+        <Backdrop open={!classesInfo[selectedSchedIndex]} className={classes.loadingFullPage}>
+          <CircularProgress color="inherit" />
+        </Backdrop>
       </div>
     </ThemeProvider>
   );
