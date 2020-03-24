@@ -26,8 +26,13 @@ import { Close } from '@material-ui/icons';
 import HelpOutlineIcon from '@material-ui/icons/HelpOutline';
 import { navigate } from 'hookrouter';
 
-const apiKey = '4ad350333dc3859b91bcf443d14e4bf0';
-const uwapi = new UWAPI(apiKey);
+const API_KEY = '4ad350333dc3859b91bcf443d14e4bf0';
+
+const BASE_URL = `${process.env.PUBLIC_URL}/`;
+
+const TERM = 1205; // Spring 2020
+
+const uwapi = new UWAPI(API_KEY);
 // TODO: terms
 
 const useStyles = makeStyles((theme) => ({
@@ -103,6 +108,9 @@ const useStyles = makeStyles((theme) => ({
   },
   paper: {
     padding: theme.spacing(1),
+  },
+  editButton: {
+    width: '200px',
   },
 }));
 
@@ -216,6 +224,7 @@ function WelcomePage(props) {
   const [currentCourses, setCurrentCourses] = useState([]);
 
   // UI states
+  const [editBtnText, setEditBtnText] = useState('Edit Manually');
   const [editCourseModalOpen, setEditCourseModalOpen] = useState(false); // modalShow
   const [fullPageLoading, setFullPageLoading] = useState(false);
   const [snackbarOpen, setSnackbarOpen] = useState(false);
@@ -237,12 +246,10 @@ function WelcomePage(props) {
   // Material UI styles
   const classes = useStyles();
 
-  const baseUrl = `${process.env.PUBLIC_URL}/`;
-
-  const showSnackbar = (severity, text, title) => {
+  const showSnackbar = (severity, text, title = '') => {
     setSnackbarSeverity(severity);
     setSnackbarText(text);
-    setSnackbarTitle(title || '');
+    setSnackbarTitle(title);
     setSnackbarOpen(true);
   };
 
@@ -283,7 +290,7 @@ function WelcomePage(props) {
   };
 
   const loadCourseInfo = async (courseNames, classNumbers) => {
-    const promises = uwapi.getCourseScheduleBulk(courseNames);
+    const promises = uwapi.getCourseScheduleBulk(courseNames, TERM);
     setFullPageLoading(true);
     axios.all(promises).then((values) => {
       const courseInfo = values.map((value) => value.data.data);
@@ -294,15 +301,12 @@ function WelcomePage(props) {
         ));
         setCurrentClasses(classNumbers);
         setEditCourseModalOpen(true);
+        setEditBtnText('Keep Editing');
       } else {
         showScheduleInvalidAlert();
       }
     }).catch((error) => {
-      if (error.message.startsWith('timeout')) {
-        showSnackbar('error', 'Network Timeout');
-      } else {
-        showSnackbar('error', error.message);
-      }
+      showSnackbar('error', error.message);
     }).finally(() => {
       setScheduleImportInput('');
       setFullPageLoading(false);
@@ -350,6 +354,7 @@ function WelcomePage(props) {
       const courseNumbers = await uwapi.getCourseNumbers(subject);
       setAvailCourseNumbers(courseNumbers);
     } catch (error) {
+      showSnackbar('error', error.message);
       setAvailCourseNumbers([]);
     }
   };
@@ -376,7 +381,7 @@ function WelcomePage(props) {
 
     try {
       const classesInfo = await uwapi.getCourseSchedule(
-        addCourseSubjectInput, addCourseNumberInput,
+        addCourseSubjectInput, addCourseNumberInput, TERM,
       );
       if (classesInfo.every(isOnline)) {
         const error = new Error(`${courseCode} is only available online.`);
@@ -397,8 +402,6 @@ function WelcomePage(props) {
         showSnackbar('warning', `${courseCode} is unavailable for this term.`);
       } else if (error.name === 'UW online') {
         showSnackbar('warning', error.message);
-      } else if (error.message.startsWith('timeout')) {
-        showSnackbar('error', 'Network Timeout');
       } else {
         showSnackbar('error', error.message);
       }
@@ -408,22 +411,28 @@ function WelcomePage(props) {
   };
 
   const handleViewScheduleClick = async () => {
-    setWaitingResult(true);
-    const data = formatPostData(currentCourses, currentClasses, coursesInfo);
-    if (perm(data.filtered_courses).length > 200000) {
-      showSnackbar('warning', 'Try locking some of your courses or reduce the number of courses.', 'Too many course combinations');
+    if (currentCourses.length === 0) {
+      showSnackbar('warning', 'Please add at least one course');
       return;
     }
+    setWaitingResult(true);
+    showSnackbar('info', 'Time varies depending on the combinations of your courses.', 'This may take up to a minute');
+    const data = formatPostData(currentCourses, currentClasses, coursesInfo);
+    // if (perm(data.filtered_courses).length > 200000) {
+    //   showSnackbar('warning', 'Sorry, currently our server cannot handle huge dataset.Try locking some of your courses or reduce the number of courses.', 'Too many course combinations');
+    //   setWaitingResult(false);
+    //   return;
+    // }
     data.preferences = [firstClassSliderValue, evenDistSliderValue, clusterClassSliderValue];
     const url = 'https://qemn8c6rx9.execute-api.us-east-2.amazonaws.com/test/handleschedulerequest';
     try {
-      const response = await axios.post(url, data, { timeout: 15000 });
+      const response = await axios.post(url, data, { timeout: 60000 });
       props.setResult(response.data);
       setWaitingResult(false);
-      navigate(`${baseUrl}result/`);
+      navigate(`${BASE_URL}result/`);
     } catch (error) {
       if (error.message.startsWith('timeout')) {
-        showSnackbar('error', 'Network Timeout');
+        showSnackbar('error', 'Try locking some of your courses or reduce the number of courses.', 'The operation took longer than expected');
       } else if (error.response) {
         showSnackbar('error', error.response.data);
       } else {
@@ -456,14 +465,13 @@ function WelcomePage(props) {
         open={snackbarOpen}
         onClose={hideSnackbar}
         anchorOrigin={{ vertical: 'top', horizontal: 'center' }}
-        autoHideDuration={4000}
+        autoHideDuration={6000}
       >
         <Alert severity={snackbarSeverity} onClose={hideSnackbar}>
           {snackbarTitle && <AlertTitle>{snackbarTitle}</AlertTitle>}
           {snackbarText}
         </Alert>
       </Snackbar>
-
       <div className={classes.root}>
         <div className={classes.logoWrap}>
           <img src={icon} alt="" className={classes.icon} />
@@ -530,6 +538,19 @@ function WelcomePage(props) {
             </Grid>
           </Grid>
         </Container>
+
+        <div className={classes.logoWrap}>
+          <Button
+            className={classes.editButton}
+            size="large"
+            variant="contained"
+            color="primary"
+            onClick={() => { setEditCourseModalOpen(true); setEditBtnText('Keep Editing'); }}
+          >
+            {editBtnText}
+          </Button>
+        </div>
+
       </div>
 
       <Modal

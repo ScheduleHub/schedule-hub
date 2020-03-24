@@ -25,7 +25,7 @@ class UWAPI {
         key: this.apiKey,
       },
       timeout: this.timeout,
-      timeoutErrorMessage: `timeout ${this.timeout}`,
+      timeoutErrorMessage: 'Network Timeout',
     });
     const { meta, data } = response.data;
     if (meta.status !== 200) {

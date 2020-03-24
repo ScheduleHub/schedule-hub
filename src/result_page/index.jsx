@@ -21,8 +21,9 @@ import Timetable from 'components/Timetable';
 // import { useRoutes, navigate } from 'hookrouter';
 // import WelcomePage from '../welcome_page/index';
 
-const apiKey = '4ad350333dc3859b91bcf443d14e4bf0';
-const uwapi = new UWAPI(apiKey, null);
+const API_KEY = '4ad350333dc3859b91bcf443d14e4bf0';
+const TERM = 1205; // Spring 2020
+const uwapi = new UWAPI(API_KEY, null);
 
 const shTheme = createMuiTheme({
   palette: {
@@ -98,7 +99,7 @@ function ResultPage(props) {
       console.log(schedules);
       const loadApiSchedules = (sched, index) => {
         const start = new Date().getTime();
-        const promises = uwapi.getClassScheduleBulk(sched);
+        const promises = uwapi.getClassScheduleBulk(sched, TERM);
         axios.all(promises).then((values) => {
           const info = values.map((item) => item.data.data[0]);
           setClassesInfo((prevClassesInfo) => {
