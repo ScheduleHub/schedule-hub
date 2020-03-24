@@ -544,14 +544,15 @@ function WelcomePage(props) {
             </Button>
             <Menu
               anchorEl={anchorEl}
+              getContentAnchorEl={null}
               anchorOrigin={{
-                vertical: 'top',
-                horizontal: 'right',
+                vertical: 'bottom',
+                horizontal: 'center',
               }}
               keepMounted
               transformOrigin={{
                 vertical: 'top',
-                horizontal: 'right',
+                horizontal: 'center',
               }}
               open={termMenuOpen}
               onClose={() => setAnchorEl(null)}
