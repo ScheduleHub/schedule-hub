@@ -14,12 +14,17 @@ import {
   createMuiTheme,
   makeStyles,
   Snackbar,
+  IconButton,
+  Button,
+  Popover,
 } from '@material-ui/core';
 import { Alert, AlertTitle } from '@material-ui/lab';
 import { blue, pink, green } from '@material-ui/core/colors';
 import axios from 'axios';
 import UWAPI from 'utils/uwapi';
 import Timetable from 'components/Timetable';
+import GitHubIcon from '@material-ui/icons/GitHub';
+import appBarIcon from 'res/icon-white.svg';
 // import { useRoutes, navigate } from 'hookrouter';
 // import WelcomePage from '../welcome_page/index';
 
@@ -77,21 +82,39 @@ const useStyles = makeStyles((theme) => ({
     overflow: 'auto',
     border: `2px solid ${theme.palette.divider}`,
   },
+  appBarIcon: {
+    height: 30,
+    marginLeft: theme.spacing(0.5),
+    marginRight: theme.spacing(1),
+  },
+  termBtn: {
+    fontSize: '18px',
+    color: 'white',
+    textTransform: 'none',
+  },
+  popover: {
+    pointerEvents: 'none',
+  },
+  gitHubIconPopoverPaper: {
+    padding: theme.spacing(1),
+  },
 }));
 
 const propTypes = {
   schedules: PropTypes.arrayOf(PropTypes.arrayOf(PropTypes.number)).isRequired,
-  term: PropTypes.number.isRequired,
+  termCode: PropTypes.number.isRequired,
+  termName: PropTypes.string.isRequired,
 };
 
 function ResultPage(props) {
-  const { schedules, term } = props;
+  const { schedules, termCode, termName } = props;
   // UI states
   const [selectedSchedIndex, setSelectedSchedIndex] = useState(0);
   const [snackbarOpen, setSnackbarOpen] = useState(false);
   const [snackbarSeverity, setSnackbarSeverity] = useState(''); // snackbarTheme
   const [snackbarTitle, setSnackbarTitle] = useState('');
   const [snackbarText, setSnackbarText] = useState('');
+  const [GithubIconAnchorEl, setGithubIconAnchorEl] = useState(null);
 
   // Data states
   const [classesInfo, setClassesInfo] = useState(Array(schedules.length).fill(undefined));
@@ -120,7 +143,7 @@ function ResultPage(props) {
   useEffect(
     () => {
       const loadApiSchedules = (sched, index) => {
-        const promises = uwapi.getClassScheduleBulk(sched, term);
+        const promises = uwapi.getClassScheduleBulk(sched, termCode);
         axios.all(promises).then((values) => {
           const info = values.map((item) => item.data.data[0]);
           setClassesInfo((prevClassesInfo) => {
@@ -141,16 +164,21 @@ function ResultPage(props) {
         }
       };
       loadSchedules();
-    }, [schedules, term],
+    }, [schedules, termCode],
   );
 
   const handleTabsChange = (event, newValue) => {
     setSelectedSchedIndex(newValue);
   };
 
-  if (!schedules) {
-    return (<h1>Invalid Schedules</h1>);
-  }
+  const handleGitHubIconPopoverOpen = (event) => {
+    setGithubIconAnchorEl(event.currentTarget);
+  };
+
+  const handleGitHubIconPopoverClose = () => {
+    setGithubIconAnchorEl(null);
+  };
+
   return (
     <ThemeProvider theme={shTheme}>
       <CssBaseline />
@@ -168,7 +196,42 @@ function ResultPage(props) {
       <div className={classes.root}>
         <AppBar position="static" color="primary">
           <Toolbar>
-            <Typography variant="h6">Your Recommended Schedules</Typography>
+            <img src={appBarIcon} alt="" className={classes.appBarIcon} />
+            <Typography variant="h6" style={{ flex: 1 }}>Scheudle Hub</Typography>
+            <Button
+              className={classes.termBtn}
+            >
+              {termName}
+            </Button>
+            <IconButton
+              onMouseEnter={handleGitHubIconPopoverOpen}
+              onMouseLeave={handleGitHubIconPopoverClose}
+              color="inherit"
+              href="https://github.com/ScheduleHub/schedule-hub"
+              target="_blank"
+            >
+              <GitHubIcon style={{ fontSize: 30 }} />
+            </IconButton>
+            <Popover
+              className={classes.popover}
+              classes={{
+                paper: classes.gitHubIconPopoverPaper,
+              }}
+              open={Boolean(GithubIconAnchorEl)}
+              anchorEl={GithubIconAnchorEl}
+              anchorOrigin={{
+                vertical: 'bottom',
+                horizontal: 'left',
+              }}
+              transformOrigin={{
+                vertical: 'top',
+                horizontal: 'left',
+              }}
+              onClose={handleGitHubIconPopoverClose}
+              disableRestoreFocus
+            >
+              <Typography>GitHub Repo</Typography>
+            </Popover>
           </Toolbar>
           <AppBar position="static" color="default">
             <Tabs

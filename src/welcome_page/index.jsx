@@ -27,6 +27,7 @@ import _ from 'lodash';
 import { Close } from '@material-ui/icons';
 import HelpOutlineIcon from '@material-ui/icons/HelpOutline';
 import ExpandMoreIcon from '@material-ui/icons/ExpandMore';
+import GitHubIcon from '@material-ui/icons/GitHub';
 import { useHistory } from 'react-router-dom';
 
 const API_KEY = '4ad350333dc3859b91bcf443d14e4bf0';
@@ -119,6 +120,9 @@ const useStyles = makeStyles((theme) => ({
     fontSize: '18px',
     color: 'white',
     textTransform: 'none',
+  },
+  gitHubIconPopoverPaper: {
+    padding: theme.spacing(1),
   },
 }));
 
@@ -225,8 +229,8 @@ PreferenceSlider.propTypes = {
 
 function WelcomePage(props) {
   // UI states
-  const [anchorEl, setAnchorEl] = useState(null);
-  const termMenuOpen = Boolean(anchorEl);
+  const [termMenuAnchorEl, setTermMenuAnchorEl] = useState(null);
+  const [GithubIconAnchorEl, setGithubIconAnchorEl] = useState(null);
   const [editBtnText, setEditBtnText] = useState('Edit Manually');
   const [editCourseModalOpen, setEditCourseModalOpen] = useState(false); // modalShow
   const [fullPageLoading, setFullPageLoading] = useState(false);
@@ -499,11 +503,19 @@ function WelcomePage(props) {
   const handleClusterClassSliderChange = (event, value) => setClusterClassSliderValue(value);
 
   const handleChangeTermBtnClick = (event) => {
-    setAnchorEl(event.currentTarget);
+    setTermMenuAnchorEl(event.currentTarget);
+  };
+
+  const handleGitHubIconPopoverOpen = (event) => {
+    setGithubIconAnchorEl(event.currentTarget);
+  };
+
+  const handleGitHubIconPopoverClose = () => {
+    setGithubIconAnchorEl(null);
   };
 
   const handleTermMenuClose = (curTerm) => {
-    setAnchorEl(null);
+    setTermMenuAnchorEl(null);
     if (curTerm[0] !== currentTermCode) {
       setCoursesInfo([]);
       setAvailCourseNumbers([]);
@@ -543,7 +555,7 @@ function WelcomePage(props) {
               <ExpandMoreIcon />
             </Button>
             <Menu
-              anchorEl={anchorEl}
+              anchorEl={termMenuAnchorEl}
               getContentAnchorEl={null}
               anchorOrigin={{
                 vertical: 'bottom',
@@ -554,8 +566,8 @@ function WelcomePage(props) {
                 vertical: 'top',
                 horizontal: 'center',
               }}
-              open={termMenuOpen}
-              onClose={() => setAnchorEl(null)}
+              open={Boolean(termMenuAnchorEl)}
+              onClose={() => setTermMenuAnchorEl(null)}
             >
               {termsInfo.previous_term && (
                 <MenuItem onClick={() => handleTermMenuClose(termsInfo.previous_term)}>
@@ -573,7 +585,35 @@ function WelcomePage(props) {
                 </MenuItem>
               )}
             </Menu>
-
+            <IconButton
+              onMouseEnter={handleGitHubIconPopoverOpen}
+              onMouseLeave={handleGitHubIconPopoverClose}
+              color="inherit"
+              href="https://github.com/ScheduleHub/schedule-hub"
+              target="_blank"
+            >
+              <GitHubIcon style={{ fontSize: 30 }} />
+            </IconButton>
+            <Popover
+              className={classes.popover}
+              classes={{
+                paper: classes.gitHubIconPopoverPaper,
+              }}
+              open={Boolean(GithubIconAnchorEl)}
+              anchorEl={GithubIconAnchorEl}
+              anchorOrigin={{
+                vertical: 'bottom',
+                horizontal: 'left',
+              }}
+              transformOrigin={{
+                vertical: 'top',
+                horizontal: 'left',
+              }}
+              onClose={handleGitHubIconPopoverClose}
+              disableRestoreFocus
+            >
+              <Typography>GitHub Repo</Typography>
+            </Popover>
           </Toolbar>
         </AppBar>
         <div className={classes.logoWrap}>

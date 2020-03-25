@@ -70,7 +70,8 @@ function App() {
               <ResultPage
                 {...props}
                 schedules={result}
-                term={currentTermCode}
+                termCode={currentTermCode}
+                termName={currentTermName}
               />
             )}
         />
