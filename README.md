@@ -1,4 +1,4 @@
-# schedule-planner
+# Schedule Hub
 
 https://schedulehub.github.io/schedule-hub/
 
