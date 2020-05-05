@@ -78,12 +78,25 @@ class UWAPI {
       };
       return `${digitToSeason[termCode[3]]} ${19 + parseInt(termCode[0], 10)}${termCode.substring(1, 3)}`;
     };
-    result.current_term = [termsInfo.current_term,
-      getTermName(termsInfo.current_term.toString())];
-    result.previous_term = [termsInfo.previous_term,
-      getTermName(termsInfo.previous_term.toString())];
-    result.next_term = [termsInfo.next_term,
-      getTermName(termsInfo.next_term.toString())];
+    const { current_term } = termsInfo;
+    let previous_term;
+    let next_term;
+    if (current_term % 10 === 1) {
+      previous_term = current_term - 2;
+      next_term = current_term + 4;
+    } else if (current_term % 10 === 5) {
+      previous_term = current_term - 4;
+      next_term = current_term + 4;
+    } else {
+      previous_term = current_term - 4;
+      next_term = current_term + 2;
+    }
+    result.current_term = [current_term,
+      getTermName(current_term.toString())];
+    result.previous_term = [previous_term,
+      getTermName(previous_term.toString())];
+    result.next_term = [next_term,
+      getTermName(next_term.toString())];
     return result;
   };
 
