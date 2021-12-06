@@ -1,5 +1,7 @@
 # Schedule Hub
 
+**IMPORTANT: Due to API breaking change, this project is currently unusable.**
+
 https://schedulehub.github.io/schedule-hub/
 
 ## Install Dependencies
